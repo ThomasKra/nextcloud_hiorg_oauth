@@ -16,10 +16,8 @@ use OCP\ISession;
 use OCP\Mail\IMailer;
 use OC\User\LoginException;
 use OCA\SocialLogin\Storage\SessionStorage;
-use OCA\SocialLogin\Provider\CustomOAuth2;
-use OCA\SocialLogin\Provider\CustomOpenIDConnect;
 use OCA\SocialLogin\Db\SocialConnectDAO;
-use Hybridauth\Provider;
+use OCA\SocialLogin\Provider;
 use Hybridauth\User\Profile;
 use Hybridauth\HttpClient\Curl;
 
@@ -93,7 +91,16 @@ class LoginController extends Controller
         if (is_array($providers) && in_array($provider, array_keys($providers))) {
             foreach ($providers as $name => $prov) {
                 if ($name === $provider) {
-                    $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName.'.login.oauth', ['provider' => $provider]);
+                    if($provider == 'Hiorg')
+                    {
+                        $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName . '.login.hiorg', ['provider' => ucfirst($provider)]);
+                    }
+                    else
+                    {
+                        $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName.'.login.oauth', ['provider' => $provider]);
+                    }
+
+                    //print_r($callbackUrl);
                     $config = [
                         'callback' => $callbackUrl,
                         'keys'     => [
@@ -124,139 +131,48 @@ class LoginController extends Controller
      * @NoCSRFRequired
      * @UseSession
      */
-    public function openid($provider)
+    public function hiorg($provider)
     {
+        $scopes = [
+            'facebook' => 'email, public_profile',
+        ];
         $config = [];
-        $providers = json_decode($this->config->getAppValue($this->appName, 'openid_providers', '[]'), true);
-        if (is_array($providers)) {
-            foreach ($providers as $prov) {
-                if ($prov['name'] === $provider) {
-                    $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName.'.login.openid', ['provider' => $provider]);
-                    $config = [
-                        'callback'          => $callbackUrl,
-                        'openid_identifier' => $prov['url'],
-                        'default_group'     => $prov['defaultGroup'],
-                    ];
-                    break;
-                }
-            }
-        }
-        return $this->auth(Provider\OpenID::class, $config, $provider, 'OpenID');
-    }
-
-    /**
-     * @PublicPage
-     * @NoCSRFRequired
-     * @UseSession
-     */
-    public function customOidc($provider)
-    {
-        $config = [];
-        $providers = json_decode($this->config->getAppValue($this->appName, 'custom_oidc_providers', '[]'), true);
-        if (is_array($providers)) {
-            foreach ($providers as $prov) {
-                if ($prov['name'] === $provider) {
-                    $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName.'.login.custom_oidc', ['provider' => $provider]);
+        $providers = json_decode($this->config->getAppValue($this->appName, 'oauth_providers', '[]'), true);
+        if (is_array($providers) && in_array($provider, array_keys($providers))) {
+            foreach ($providers as $name => $prov) {
+                if ($name === $provider) {
+                    if ($provider == 'Hiorg') {
+                        $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName . '.login.hiorg', ['provider' => ucfirst($provider)]);
+                    } else {
+                        $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName . '.login.oauth', ['provider' => $provider]);
+                    }
                     $config = [
                         'callback' => $callbackUrl,
-                        'scope' => $prov['scope'],
-                        'keys' => [
-                            'id'     => $prov['clientId'],
-                            'secret' => $prov['clientSecret'],
-                        ],
-                        'endpoints' => [
-                            'authorize_url'    => $prov['authorizeUrl'],
-                            'access_token_url' => $prov['tokenUrl'],
-                            'user_info_url'    => $prov['userInfoUrl'],
+                        'keys'     => [
+                            'id'     => $prov['appid'],
+                            'secret' => $prov['secret'],
                         ],
                         'default_group' => $prov['defaultGroup'],
-                        'groups_claim'  => isset($prov['groupsClaim']) ? $prov['groupsClaim'] : null,
-                        'group_mapping' => isset($prov['groupMapping']) ? $prov['groupMapping'] : null,
-                        'logout_url'    => isset($prov['logoutUrl']) ? $prov['logoutUrl'] : null,
+                        'group_mapping' => $prov['group_mapping'],
+                        'quota' => $prov['quota'],
                     ];
+                    if (isset($scopes[$provider])) {
+                        $config['scope'] = $scopes[$provider];
+                    }
+                    if (isset($prov['auth_params']) && is_array($prov['auth_params'])) {
+                        foreach ($prov['auth_params'] as $k => $v) {
+                            if (!empty($v)) {
+                                $config['authorize_url_parameters'][$k] = $v;
+                            }
+                        }
+                    }
                     break;
                 }
             }
         }
-        return $this->auth(CustomOpenIDConnect::class, $config, $provider, 'OpenID Connect');
+        return $this->auth(Provider::class . '\\' . ucfirst($provider), $config, $provider, 'OAuth');
     }
-
-    /**
-     * @PublicPage
-     * @NoCSRFRequired
-     * @UseSession
-     */
-    public function customOauth2($provider)
-    {
-        $config = [];
-        $providers = json_decode($this->config->getAppValue($this->appName, 'custom_oauth2_providers', '[]'), true);
-        if (is_array($providers)) {
-            foreach ($providers as $prov) {
-                if ($prov['name'] === $provider) {
-                    $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName.'.login.custom_oauth2', ['provider' => $provider]);
-                    $config = [
-                        'callback' => $callbackUrl,
-                        'scope' => $prov['scope'],
-                        'keys' => [
-                            'id'     => $prov['clientId'],
-                            'secret' => $prov['clientSecret'],
-                        ],
-                        'endpoints' => [
-                            'api_base_url'     => $prov['apiBaseUrl'],
-                            'authorize_url'    => $prov['authorizeUrl'],
-                            'access_token_url' => $prov['tokenUrl'],
-                            'profile_url'      => $prov['profileUrl'],
-                        ],
-                        'profile_fields' => $prov['profileFields'],
-                        'default_group'  => $prov['defaultGroup'],
-                        'groups_claim'  => isset($prov['groupsClaim']) ? $prov['groupsClaim'] : null,
-                        'group_mapping' => isset($prov['groupMapping']) ? $prov['groupMapping'] : null,
-                        'logout_url'    => isset($prov['logoutUrl']) ? $prov['logoutUrl'] : null,
-                    ];
-                    break;
-                }
-            }
-        }
-        return $this->auth(CustomOAuth2::class, $config, $provider, 'Custom OAuth2');
-    }
-
-    /**
-     * @PublicPage
-     * @NoCSRFRequired
-     * @UseSession
-     */
-    public function telegram()
-    {
-        if ($redirectUrl = $this->request->getParam('login_redirect_url')) {
-            $this->session->set('login_redirect_url', $redirectUrl);
-        }
-        $botToken = $this->config->getAppValue($this->appName, 'tg_token');
-        $checkHash = $this->request->getParam('hash');
-        $authData = $_GET;
-        unset($authData['hash'], $authData['login_redirect_url']);
-        ksort($authData);
-        array_walk($authData, function (&$value, $key) {$value = $key.'='.$value;});
-        $dataCheckStr = implode("\n", $authData);
-        $secretKey = hash('sha256', $botToken, true);
-        $hash = hash_hmac('sha256', $dataCheckStr, $secretKey);
-        if ($hash !== $checkHash) {
-            throw new LoginException($this->l->t('Telegram auth data check failed'));
-        }
-        if ((time() - $this->request->getParam('auth_date')) > 300) {
-            throw new LoginException($this->l->t('Telegram auth data expired'));
-        }
-        if (null === $tgId = $this->request->getParam('id')) {
-            throw new LoginException($this->l->t('Missing mandatory "id" param'));
-        }
-        $uid = 'tg-' . $tgId;
-        $profile = new Profile();
-        $profile->identifier = $tgId;
-        $profile->displayName = $this->request->getParam('first_name').' '.$this->request->getParam('last_name');
-        $profile->photoURL = $this->request->getParam('photo_url');
-        $profile->data['default_group'] = $this->config->getAppValue($this->appName, 'tg_group');
-        return $this->login($uid, $profile);
-    }
-
+    
     private function auth($class, array $config, $provider, $providerType)
     {
         if (empty($config)) {
@@ -294,11 +210,18 @@ class LoginController extends Controller
 
         $profile->data['default_group'] = $config['default_group'];
 
-        $uid = $provider.'-'.$profileId;
-        if (strlen($uid) > 64) {
-            $uid = $provider.'-'.md5($profileId);
+        if($provider == 'Hiorg')
+        {
+            $uid = $profileId;
         }
-        return $this->login($uid, $profile, $provider.'-');
+        else
+        {
+            $uid = $provider.'-'.$profileId;
+            if (strlen($uid) > 64) {
+                $uid = $provider.'-'.md5($profileId);
+            }
+        }
+        return $this->login($uid, $profile);
     }
 
     private function login($uid, Profile $profile, $newGroupPrefix = '')
@@ -344,6 +267,11 @@ class LoginController extends Controller
         if ($updateUserProfile) {
             $user->setDisplayName($profile->displayName ?: $profile->identifier);
             $user->setEMailAddress((string)$profile->email);
+            
+            if(!empty($profile->data['quota']))
+            {
+                $user->setQuota($profile->data['quota']);
+            }
 
             if ($profile->photoURL) {
                 $curl = new Curl();
@@ -353,35 +281,47 @@ class LoginController extends Controller
                     $avatar->set($photo);
                 } catch (\Exception $e) {}
             }
+            
+            
 
-            if (!empty($profile->data['groups']) && is_array($profile->data['groups'])) {
-                $groupNames = $profile->data['groups'];
-                $groupMapping = isset($profile->data['group_mapping']) ? $profile->data['group_mapping'] : null;
-                $userGroups = $this->groupManager->getUserGroups($user);
+            if (!empty($profile->data[ 'group_mapping']) && is_array($profile->data[ 'group_mapping'])) {
+                $groupNames = $profile->data[ 'group_mapping'];
+                $userGroup = $profile->data['gruppe'];
 
-                if ($groupMapping) {
-                    foreach ($groupNames as $k => $v) {
-                        if (isset($groupMapping[$v])) {
-                            $groupNames[$k] = $groupMapping[$v];
+                for ($i = 0; $i < 11; $i++) {
+                    $num = strval(2 ** $i);
+
+                    \OCP\Util::writeLog('social_login', "HiOrg-Group ($num) is assigned to (" . strval( $groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
+
+                    if ($groupNames['id_'.$num] != '') {
+                        if ($this->groupManager->groupExists($groupNames['id_'.$num])) {
+                            $group = $this->groupManager->get($groupNames['id_'.$num]);
+                            if ( $userGroup & 2 ** $i) /* 2^i */ {
+                                /* 
+                                user has this HiOrg-Server group
+                                check if user is already a member or add user to group
+                                */
+                                if (!$group->inGroup($user)) {
+                                    $group->addUser($user);
+                                    \OCP\Util::writeLog( 'social_login', "Added user ( $profile->displayName) to group (" . strval($groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
+                                } else {
+                                    \OCP\Util::writeLog( 'social_login', "User ( $profile->displayName) is not in group (" . strval($groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
+                                }
+                            } else {
+                                /*
+                                user does NOT have this HiOrg-Server group
+                                check if user is already a member and remove from group 
+                                */
+                                if ($group->inGroup($user)) {
+                                    $group->removeUser($user);
+                                    \OCP\Util::writeLog( 'social_login', "Removed user ( $profile->displayName) from group (" . $groupNames['id_'.$num] . ").", \OCP\Util::INFO);
+                                } else {
+                                    \OCP\Util::writeLog( 'social_login', "User ( $profile->displayName) is not in group (" . $groupNames['id_'.$num] . ").", \OCP\Util::INFO);
+                                }
+                            }
                         } else {
-                            unset($groupNames[$k]);
+                            \OCP\Util::writeLog( 'social_login', "Group (" . $this->group_id[$num] . ") does not exist!", \OCP\Util::WARNING);
                         }
-                    }
-                }
-
-                foreach ($userGroups as $group) {
-                    if (!in_array($group->getGID(), $groupNames)) {
-                        $group->removeUser($user);
-                    }
-                }
-
-                foreach ($groupNames as $groupName) {
-                    $group = $groupMapping
-                        ? $this->groupManager->get($groupName)
-                        : $this->groupManager->createGroup($newGroupPrefix.$groupName)
-                    ;
-                    if ($group) {
-                        $group->addUser($user);
                     }
                 }
             }

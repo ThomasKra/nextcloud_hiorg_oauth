@@ -39,12 +39,16 @@ class AdminSettings implements ISettings
             'update_profile_on_login',
         ];
         $oauthProviders = [
+            'Hiorg',
+            /*
             'google',
             'amazon',
             'facebook',
             'twitter',
             'GitHub',
             'discord',
+            */
+            
         ];
         $groupNames = [];
         $groups = $this->groupManager->search('');

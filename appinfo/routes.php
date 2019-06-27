@@ -11,6 +11,7 @@ return [
     'routes' => [
         ['name' => 'settings#saveAdmin', 'url' => '/settings/save-admin', 'verb' => 'POST'],
         ['name' => 'login#oauth', 'url' => '/oauth/{provider}', 'verb' => 'GET'],
+        ['name' => 'login#hiorg', 'url' => '/custom_oauth2/{provider}', 'verb' => 'GET'],
         ['name' => 'login#openid', 'url' => '/openid/{provider}', 'verb' => 'GET'],
         ['name' => 'login#openid', 'url' => '/openid/{provider}', 'postfix' => '.post', 'verb' => 'POST'],
         ['name' => 'login#custom_oidc', 'url' => '/custom_oidc/{provider}', 'verb' => 'GET'],
