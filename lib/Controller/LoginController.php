@@ -258,6 +258,12 @@ class LoginController extends Controller
             $password = substr(base64_encode(random_bytes(64)), 0, 30);
             $user = $this->userManager->createUser($uid, $password);
 
+            // Quota only set when new user is created
+            if(!empty($profile->data['quota']))
+            {
+                $user->setQuota($profile->data['quota']);
+            }
+
             $this->config->setUserValue($uid, $this->appName, 'disable_password_confirmation', 1);
             $updateUserProfile = true;
 
@@ -268,10 +274,6 @@ class LoginController extends Controller
             $user->setDisplayName($profile->displayName ?: $profile->identifier);
             $user->setEMailAddress((string)$profile->email);
             
-            if(!empty($profile->data['quota']))
-            {
-                $user->setQuota($profile->data['quota']);
-            }
 
             if ($profile->photoURL) {
                 $curl = new Curl();
