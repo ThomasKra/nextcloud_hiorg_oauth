@@ -1,6 +1,6 @@
 <?php
 
-namespace OCA\SocialLogin\Controller;
+namespace OCA\HiorgOAuth\Controller;
 
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\RedirectResponse;
@@ -15,9 +15,9 @@ use OCP\IGroupManager;
 use OCP\ISession;
 use OCP\Mail\IMailer;
 use OC\User\LoginException;
-use OCA\SocialLogin\Storage\SessionStorage;
-use OCA\SocialLogin\Db\SocialConnectDAO;
-use OCA\SocialLogin\Provider;
+use OCA\HiorgOAuth\Storage\SessionStorage;
+use OCA\HiorgOAuth\Db\SocialConnectDAO;
+use OCA\HiorgOAuth\Provider;
 use Hybridauth\User\Profile;
 use Hybridauth\HttpClient\Curl;
 
@@ -203,9 +203,9 @@ class LoginController extends Controller
         }
 
         if (!empty($config['logout_url'])) {
-            $this->session->set('sociallogin_logout_url', $config['logout_url']);
+            $this->session->set('hiorgoauth_logout_url', $config['logout_url']);
         } else {
-            $this->session->remove('sociallogin_logout_url', $config['logout_url']);
+            $this->session->remove('hiorgoauth_logout_url', $config['logout_url']);
         }
 
         $profile->data['default_group'] = $config['default_group'];

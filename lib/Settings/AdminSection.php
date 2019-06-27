@@ -1,6 +1,6 @@
 <?php
 
-namespace OCA\SocialLogin\Settings;
+namespace OCA\HiorgOAuth\Settings;
 
 use OCP\Settings\IIconSection;
 use OCP\IURLGenerator;
@@ -38,7 +38,7 @@ class AdminSection implements IIconSection
      * @return string
      */
     public function getName() {
-        return $this->l->t('Social login');
+        return $this->l->t('Hiorg Login');
     }
 
     /**

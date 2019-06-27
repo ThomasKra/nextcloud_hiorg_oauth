@@ -1,6 +1,6 @@
 <?php
 
-namespace OCA\SocialLogin\Settings;
+namespace OCA\HiorgOAuth\Settings;
 
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\Settings\ISettings;
@@ -39,16 +39,7 @@ class AdminSettings implements ISettings
             'update_profile_on_login',
         ];
         $oauthProviders = [
-            'Hiorg',
-            /*
-            'google',
-            'amazon',
-            'facebook',
-            'twitter',
-            'GitHub',
-            'discord',
-            */
-            
+            'Hiorg',            
         ];
         $groupNames = [];
         $groups = $this->groupManager->search('');
@@ -67,29 +58,10 @@ class AdminSettings implements ISettings
                 ];
             }
         }
-        $openIdProviders = json_decode($this->config->getAppValue($this->appName, 'openid_providers', '[]'), true);
-        if (!is_array($openIdProviders)) {
-            $openIdProviders = [];
-        }
-        $custom_oidcProviders = json_decode($this->config->getAppValue($this->appName, 'custom_oidc_providers', '[]'), true);
-        if (!is_array($custom_oidcProviders)) {
-            $custom_oidcProviders = [];
-        }
-        $custom_oauth2Providers = json_decode($this->config->getAppValue($this->appName, 'custom_oauth2_providers', '[]'), true);
-        if (!is_array($custom_oauth2Providers)) {
-            $custom_oauth2Providers = [];
-        }
-
         $params = [
             'action_url' => $this->urlGenerator->linkToRoute($this->appName.'.settings.saveAdmin'),
             'groups' => $groupNames,
-            'tg_bot' => $this->config->getAppValue($this->appName, 'tg_bot'),
-            'tg_token' => $this->config->getAppValue($this->appName, 'tg_token'),
-            'tg_group' => $this->config->getAppValue($this->appName, 'tg_group'),
             'providers' => $providers,
-            'openid_providers' => $openIdProviders,
-            'custom_oidc_providers' => $custom_oidcProviders,
-            'custom_oauth2_providers' => $custom_oauth2Providers,
         ];
         foreach ($paramsNames as $paramName) {
             $params[$paramName] = $this->config->getAppValue($this->appName, $paramName);

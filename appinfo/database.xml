@@ -5,7 +5,7 @@
  <overwrite>false</overwrite>
  <charset>utf8</charset>
  <table>
-  <name>*dbprefix*sociallogin_connect</name>
+  <name>*dbprefix*hiorgoauth_connect</name>
   <declaration>
     <field>
       <name>uid</name>
@@ -19,7 +19,7 @@
     </field>
 
     <index>
-      <name>sociallogin_connect_id</name>
+      <name>hiorgoauth_connect_id</name>
       <unique>true</unique>
       <field>
         <name>identifier</name>

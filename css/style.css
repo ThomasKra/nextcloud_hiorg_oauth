@@ -1,4 +1,4 @@
-a[href*="/sociallogin/oauth/"]::before {
+a[href*="/userhiorg/oauth/"]::before {
   content: "";
   background-repeat: no-repeat;
   background-size: contain;
@@ -8,30 +8,15 @@ a[href*="/sociallogin/oauth/"]::before {
   vertical-align: bottom;
   margin-right: 5px;
 }
-a[href*="/sociallogin/oauth/"]::after {
+a[href*="/userhiorg/oauth/"]::after {
   content: "";
   width: 10px;
   display: inline-block;
 }
-a[href*="/sociallogin/oauth/facebook"]::before {
-  background-image: url(../img/facebook.svg);
-}
-a[href*="/sociallogin/oauth/google"]::before {
-  background-image: url(../img/google.svg);
-}
-a[href*="/sociallogin/oauth/amazon"]::before {
-  background-image: url(../img/amazon.svg);
-}
-a[href*="/sociallogin/oauth/twitter"]::before {
-  background-image: url(../img/twitter.svg);
-}
-a[href*="/sociallogin/oauth/GitHub"]::before {
-  background-image: url(../img/github.svg);
-}
-a[href*="/sociallogin/oauth/discord"]::before {
-  background-image: url(../img/discord.svg);
+a[href*="/userhiorg/oauth/hiorg"]::before {
+  background-image: url(../img/hiorg.svg);
 }
 
-.sociallogin-connect li {
+.userhiorg-connect li {
   margin-bottom: 10px;
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace OCA\SocialLogin\Settings;
+namespace OCA\HiorgOAuth\Settings;
 
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\Settings\ISettings;
@@ -8,7 +8,7 @@ use OCP\IURLGenerator;
 use OCP\IUserSession;
 use OCP\IConfig;
 use OCP\Util;
-use OCA\SocialLogin\Db\SocialConnectDAO;
+use OCA\HiorgOAuth\Db\SocialConnectDAO;
 
 class PersonalSettings implements ISettings
 {
@@ -67,10 +67,6 @@ class PersonalSettings implements ISettings
                     }
                 }
             }
-            $params['providers'] = array_merge($params['providers'], $this->getProviders('openid'));
-            $params['providers'] = array_merge($params['providers'], $this->getProviders('custom_oidc'));
-            $params['providers'] = array_merge($params['providers'], $this->getProviders('custom_oauth2'));
-
             $connectedLogins = $this->socialConnect->getConnectedLogins($uid);
             foreach ($connectedLogins as $login) {
                 $params['connected_logins'][$login] = $this->urlGenerator->linkToRoute($this->appName.'.settings.disconnectSocialLogin', [
@@ -98,7 +94,7 @@ class PersonalSettings implements ISettings
 
     public function getSection()
     {
-        return 'sociallogin';
+        return 'userhiorg';
     }
 
     public function getPriority()

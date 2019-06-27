@@ -4,7 +4,7 @@
 
 ?>
 <div id="sociallogin" class="section">
-    <form id="sociallogin_settings" action="<?php print_unescaped($_['action_url']) ?>" method="post">
+    <form id="hiorgoauth_settings" action="<?php print_unescaped($_['action_url']) ?>" method="post">
 
         <p>
             <div>
@@ -31,12 +31,12 @@
             <div class="provider-settings">
                 <h2 class="provider-title"><img src="<?php print_unescaped(image_path('sociallogin', strtolower($name) . '.svg')); ?>" /> <?php p(ucfirst($name)) ?></h2>
                 <label>
-                    <?php p($l->t('App id')) ?><br>
+                    <?php p($l->t('Client id')) ?><br>
                     <input type="text" name="providers[<?php p($name) ?>][appid]" value="<?php p($provider['appid']) ?>" />
                 </label>
                 <br />
                 <label>
-                    <?php p($l->t('Secret')) ?><br>
+                    <?php p($l->t('Client Secret')) ?><br>
                     <input type="password" name="providers[<?php p($name) ?>][secret]" value="<?php p($provider['secret']) ?>" />
                 </label>
                 <br />

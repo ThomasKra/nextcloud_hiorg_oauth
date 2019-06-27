@@ -8,6 +8,7 @@
   "Auto creating new users is disabled": "Die automatische Erstellung neuer Benutzer is deaktiviert",
   "This account already connected": "Dieses Konto ist bereits verbunden",
   "Allow users to connect social logins with their account": "Benutzern erlauben externe Konten mit Ihrem Konto zu verknüpfen",
+  "Update user profile every login": "Profil des Benutzers bei jedem Login aktualisieren",
   "Provider name cannot be empty": "Der Anbietername muss ausgefüllt sein",
   "Duplicate provider name \"%s\"": "Der Anbietername \"%s\" existiert bereits",
   "Invalid provider name \"%s\". Allowed characters \"0-9a-z_.@-\"": "Ungültiger Anbietername \"%s\". Es sind nur die folgenden Zeichen erlaubt \"0-9a-z_.@-\"",
@@ -18,6 +19,7 @@
   "Prevent creating an account if the email address exists in another account": "Verhindere die Erstellung eines Kontos, wenn die E-Mail bereits bereits in einem anderen Konto hinterlegt ist",
   "Disable password confirmation on settings change": "Deaktiviere Passwortbestätigung bei der Änderung von Einstellungen",
   "Default Group": "Standard-Gruppe",
-  "Groups": "Gruppen-Zuweisung"
+  "Groups": "Gruppen-Zuweisung",
+  "Quota": "Speicher-Kontingent"
 },"pluralForm" :"nplurals=2; plural=(n > 1);"
 }

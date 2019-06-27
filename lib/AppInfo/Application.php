@@ -1,6 +1,6 @@
 <?php
 
-namespace OCA\SocialLogin\AppInfo;
+namespace OCA\HiorgOAuth\AppInfo;
 
 use OCP\AppFramework\App;
 use OCP\IURLGenerator;
@@ -10,7 +10,7 @@ use OCP\IUserSession;
 use OCP\IRequest;
 use OCP\ISession;
 use OCP\IUser;
-use OCA\SocialLogin\Db\SocialConnectDAO;
+use OCA\HiorgOAuth\Db\SocialConnectDAO;
 
 class Application extends App
 {
@@ -46,7 +46,7 @@ class Application extends App
             if ($this->config->getUserValue($uid, $this->appName, 'disable_password_confirmation')) {
                 $session->set('last-password-confirm', time());
             }
-            if ($logoutUrl = $session->get('sociallogin_logout_url')) {
+            if ($logoutUrl = $session->get('hiorgoauth_logout_url')) {
                 $userSession->listen('\OC\User', 'postLogout', function () use ($logoutUrl) {
                     header('Location: ' . $logoutUrl);
                     exit();
@@ -58,21 +58,6 @@ class Application extends App
         $this->urlGenerator = $this->query(IURLGenerator::class);
         $request = $this->query(IRequest::class);
         $this->redirectUrl = $request->getParam('redirect_url');
-
-        if ($tgBot = $this->config->getAppValue($this->appName, 'tg_bot')) {
-            $csp = new \OCP\AppFramework\Http\ContentSecurityPolicy();
-            $csp->addAllowedScriptDomain('telegram.org')
-                ->addAllowedFrameDomain('oauth.telegram.org')
-            ;
-            $manager = \OC::$server->getContentSecurityPolicyManager();
-            $manager->addDefaultPolicy($csp);
-
-            \OCP\Util::addHeader('tg-data', [
-                'data-login' => $tgBot,
-                'data-redirect-url' => $this->urlGenerator->linkToRouteAbsolute($this->appName.'.login.telegram', ['login_redirect_url' => $this->redirectUrl]),
-            ]);
-            \OCP\Util::addScript($this->appName, 'telegram');
-        }
 
         $providers = json_decode($this->config->getAppValue($this->appName, 'oauth_providers', '[]'), true);
         if (is_array($providers)) {
@@ -90,10 +75,6 @@ class Application extends App
                 }
             }
         }
-
-        $this->addAltLogins('openid');
-        $this->addAltLogins('custom_oidc');
-        $this->addAltLogins('custom_oauth2');
 
         $useLoginRedirect = $this->providersCount === 1
             && PHP_SAPI !== 'cli'

@@ -1,6 +1,6 @@
 <?php
 
-namespace OCA\SocialLogin\Storage;
+namespace OCA\HiorgOAuth\Storage;
 
 use Hybridauth\Storage\StorageInterface;
 use OCP\ISession;

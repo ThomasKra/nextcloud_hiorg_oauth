@@ -3,7 +3,7 @@ jQuery(function ($) {
   var showError = function(text) {
     OC.Notification.showTemporary('<div style="font-weight:bold;color:red">'+text+'<div>', {isHTML: true});
   }
-  $('#sociallogin_personal_settings').submit(function (e) {
+  $('#hiorgoauth_personal_settings').submit(function (e) {
     e.preventDefault();
     var self = this;
     var saveSettings = function () {
@@ -25,7 +25,7 @@ jQuery(function ($) {
     }
     saveSettings();
   });
-  $('#sociallogin_personal_settings input').change(function () {
+  $('#hiorgoauth_personal_settings input').change(function () {
     $(this.form).submit();
   })
 });

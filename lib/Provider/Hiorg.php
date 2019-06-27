@@ -5,7 +5,7 @@
 *  (c) 2017 Hybridauth authors | https://hybridauth.github.io/license.html
 */
 
-namespace OCA\SocialLogin\Provider;
+namespace OCA\HiorgOAuth\Provider;
 use Hybridauth\Exception\UnexpectedApiResponseException;
 use Hybridauth\Adapter\OAuth2;
 use Hybridauth\Data;
