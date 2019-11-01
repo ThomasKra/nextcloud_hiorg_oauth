@@ -29,7 +29,7 @@
 
         <?php foreach ($_['providers'] as $name => $provider) : ?>
             <div class="provider-settings">
-                <h2 class="provider-title"><img src="<?php print_unescaped(('hiorg_oauth', strtolower($name) . '.svg')); ?>" /> <?php p(ucfirst($name)) ?></h2>
+                <h2 class="provider-title"><img src="<?php print_unescaped(image_path('hiorg_oauth', strtolower($name) . '.svg')); ?>" /> <?php p(ucfirst($name)) ?></h2>
                 <label>
                     <?php p($l->t('Client id')) ?><br>
                     <input type="text" name="providers[<?php p($name) ?>][appid]" value="<?php p($provider['appid']) ?>" />
