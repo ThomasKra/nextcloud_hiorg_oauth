@@ -7,7 +7,7 @@
   "Unknown %s provider: \"%s\"": "Unbekannter %s Anbieter: \"%s\"",
   "Auto creating new users is disabled": "Die automatische Erstellung neuer Benutzer is deaktiviert",
   "This account already connected": "Dieses Konto ist bereits verbunden",
-  "Allow users to connect social logins with their account": "Benutzern erlauben externe Konten mit Ihrem Konto zu verknüpfen",
+  "Allow users to connect hiorg oauths with their account": "Benutzern erlauben externe Konten mit Ihrem Konto zu verknüpfen",
   "Update user profile every login": "Profil des Benutzers bei jedem Login aktualisieren",
   "Provider name cannot be empty": "Der Anbietername muss ausgefüllt sein",
   "Duplicate provider name \"%s\"": "Der Anbietername \"%s\" existiert bereits",

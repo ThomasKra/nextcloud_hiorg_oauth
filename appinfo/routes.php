@@ -11,7 +11,7 @@ return [
     'routes' => [
         ['name' => 'settings#saveAdmin', 'url' => '/settings/save-admin', 'verb' => 'POST'],
         ['name' => 'login#hiorg', 'url' => '/oauth/callback', 'verb' => 'GET'],
-        ['name' => 'settings#disconnectSocialLogin', 'url' => '/disconnect-social/{login}', 'verb' => 'GET'],
+        ['name' => 'settings#disconnecthiorgoauth', 'url' => '/disconnect-social/{login}', 'verb' => 'GET'],
         ['name' => 'settings#savePersonal', 'url' => '/settings/save-personal', 'verb' => 'POST'],
     ]
 ];

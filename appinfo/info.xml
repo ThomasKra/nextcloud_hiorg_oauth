@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
-    <id>hiorgoauth</id>
+    <id>hiorg_oauth</id>
     <name>Hiorg OAuth Login</name>
     <summary>Login via Hiorg with OAuth</summary>
     <description>Login via Hiorg with OAuth</description>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <licence>agpl</licence>
     <author>krause</author>
     <namespace>HiorgOAuth</namespace>

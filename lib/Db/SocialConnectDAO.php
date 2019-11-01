@@ -15,7 +15,7 @@ class SocialConnectDAO
     }
 
     /**
-     * @param string $identifier social login identifier
+     * @param string $identifier hiorg oauth identifier
      * @return string|null User uid
      */
     public function findUID($identifier)

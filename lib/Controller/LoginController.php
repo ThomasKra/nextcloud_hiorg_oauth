@@ -231,7 +231,7 @@ class LoginController extends Controller
             }
             $currentUid = $this->userSession->getUser()->getUID();
             $this->socialConnect->connectLogin($currentUid, $uid);
-            return new RedirectResponse($this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section'=>'sociallogin']));
+            return new RedirectResponse($this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section'=>'hiorgoauth']));
         }
 
         $updateUserProfile = $this->config->getAppValue($this->appName, 'update_profile_on_login');
@@ -360,11 +360,11 @@ class LoginController extends Controller
         }
 
         if ($sendTo) {
-            $template = $this->mailer->createEMailTemplate('sociallogin.NewUser');
+            $template = $this->mailer->createEMailTemplate('hiorgoauth.NewUser');
 
             $template->setSubject($this->l->t('New user created'));
             $template->addHeader();
-            $template->addBodyText($this->l->t('User %s (%s) just created via social login', [$displayName, $uid]));
+            $template->addBodyText($this->l->t('User %s (%s) just created via hiorg oauth', [$displayName, $uid]));
             $template->addFooter();
 
             $message = $this->mailer->createMessage();

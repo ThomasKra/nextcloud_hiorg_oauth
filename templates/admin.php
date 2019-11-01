@@ -3,7 +3,7 @@
 /** @var \OCP\IL10N $l */
 
 ?>
-<div id="sociallogin" class="section">
+<div id="hiorgoauth" class="section">
     <form id="hiorgoauth_settings" action="<?php print_unescaped($_['action_url']) ?>" method="post">
 
         <p>
@@ -13,7 +13,7 @@
             </div>
             <div>
                 <input id="allow_login_connect" type="checkbox" class="checkbox" name="allow_login_connect" value="1" <?php p($_['allow_login_connect'] ? 'checked' : '') ?> />
-                <label for="allow_login_connect"><?php p($l->t('Allow users to connect social logins with their account')) ?></label>
+                <label for="allow_login_connect"><?php p($l->t('Allow users to connect hiorg oauths with their account')) ?></label>
             </div>
             <div>
                 <input id="prevent_create_email_exists" type="checkbox" class="checkbox" name="prevent_create_email_exists" value="1" <?php p($_['prevent_create_email_exists'] ? 'checked' : '') ?> />
@@ -29,7 +29,7 @@
 
         <?php foreach ($_['providers'] as $name => $provider) : ?>
             <div class="provider-settings">
-                <h2 class="provider-title"><img src="<?php print_unescaped(image_path('sociallogin', strtolower($name) . '.svg')); ?>" /> <?php p(ucfirst($name)) ?></h2>
+                <h2 class="provider-title"><img src="<?php print_unescaped(('hiorg_oauth', strtolower($name) . '.svg')); ?>" /> <?php p(ucfirst($name)) ?></h2>
                 <label>
                     <?php p($l->t('Client id')) ?><br>
                     <input type="text" name="providers[<?php p($name) ?>][appid]" value="<?php p($provider['appid']) ?>" />

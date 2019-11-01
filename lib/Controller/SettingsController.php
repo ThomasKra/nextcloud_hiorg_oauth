@@ -73,9 +73,9 @@ class SettingsController extends Controller
     /**
      * @NoAdminRequired
      */
-    public function disconnectSocialLogin($login)
+    public function disconnecthiorgoauth($login)
     {
         $this->socialConnect->disconnectLogin($login);
-        return new RedirectResponse($this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section'=>'sociallogin']));
+        return new RedirectResponse($this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section'=>'hiorgoauth']));
     }
 }

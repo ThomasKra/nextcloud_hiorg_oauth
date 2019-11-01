@@ -69,7 +69,7 @@ class PersonalSettings implements ISettings
             }
             $connectedLogins = $this->socialConnect->getConnectedLogins($uid);
             foreach ($connectedLogins as $login) {
-                $params['connected_logins'][$login] = $this->urlGenerator->linkToRoute($this->appName.'.settings.disconnectSocialLogin', [
+                $params['connected_logins'][$login] = $this->urlGenerator->linkToRoute($this->appName.'.settings.disconnecthiorgoauth', [
                     'login' => $login,
                     'requesttoken' => Util::callRegister(),
                 ]);

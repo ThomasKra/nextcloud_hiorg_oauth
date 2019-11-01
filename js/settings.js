@@ -9,7 +9,7 @@ jQuery(function ($) {
       .success(function (data) {
         if (data) {
           if (data.success) {
-            OC.Notification.showTemporary(t(appName, 'Settings for social login successfully saved'));
+            OC.Notification.showTemporary(t(appName, 'Settings for hiorg oauth successfully saved'));
           } else {
             showError(data.message);
           }
