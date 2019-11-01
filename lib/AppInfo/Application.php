@@ -14,7 +14,7 @@ use OCA\HiorgOAuth\Db\SocialConnectDAO;
 
 class Application extends App
 {
-    private $appName = 'sociallogin';
+    private $appName = 'hiorg_oauth';
 
     private $providersCount = 0;
 
@@ -64,7 +64,7 @@ class Application extends App
             foreach ($providers as $name => $provider) {
                 if ($provider['appid']) {
                     ++$this->providersCount;
-                    $this->providerUrl = $this->urlGenerator->linkToRoute($this->appName.'.login.oauth', [
+                    $this->providerUrl = $this->urlGenerator->linkToRoute($this->appName.'.login.hiorg', [
                         'provider' => $name,
                         'login_redirect_url' => $this->redirectUrl
                     ]);

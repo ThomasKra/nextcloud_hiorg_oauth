@@ -81,6 +81,8 @@ class LoginController extends Controller
      * @NoCSRFRequired
      * @UseSession
      */
+
+     /*
     public function oauth($provider)
     {
         $scopes = [
@@ -91,16 +93,7 @@ class LoginController extends Controller
         if (is_array($providers) && in_array($provider, array_keys($providers))) {
             foreach ($providers as $name => $prov) {
                 if ($name === $provider) {
-                    if($provider == 'Hiorg')
-                    {
-                        $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName . '.login.hiorg', ['provider' => ucfirst($provider)]);
-                    }
-                    else
-                    {
-                        $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName.'.login.oauth', ['provider' => $provider]);
-                    }
-
-                    //print_r($callbackUrl);
+                    $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName . '.login.hiorg');
                     $config = [
                         'callback' => $callbackUrl,
                         'keys'     => [
@@ -125,27 +118,24 @@ class LoginController extends Controller
         }
         return $this->auth(Provider::class.'\\'.ucfirst($provider), $config, $provider, 'OAuth');
     }
+    */
 
     /**
      * @PublicPage
      * @NoCSRFRequired
      * @UseSession
      */
-    public function hiorg($provider)
+    public function hiorg()
     {
-        $scopes = [
-            'facebook' => 'email, public_profile',
-        ];
+        $provider = "Hiorg";
+        $scopes = [];
         $config = [];
+
         $providers = json_decode($this->config->getAppValue($this->appName, 'oauth_providers', '[]'), true);
         if (is_array($providers) && in_array($provider, array_keys($providers))) {
             foreach ($providers as $name => $prov) {
                 if ($name === $provider) {
-                    if ($provider == 'Hiorg') {
-                        $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName . '.login.hiorg', ['provider' => ucfirst($provider)]);
-                    } else {
-                        $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName . '.login.oauth', ['provider' => $provider]);
-                    }
+                    $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName . '.login.hiorg');
                     $config = [
                         'callback' => $callbackUrl,
                         'keys'     => [
@@ -170,6 +160,7 @@ class LoginController extends Controller
                 }
             }
         }
+
         return $this->auth(Provider::class . '\\' . ucfirst($provider), $config, $provider, 'OAuth');
     }
     

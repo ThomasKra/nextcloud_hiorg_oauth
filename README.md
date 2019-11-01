@@ -1,50 +1,8 @@
-# Social login
+# HiOrg OAuth login für nextcloud
 
-Make possible create users and login via Telegram, OAuth or OpenID
+Ermöglicht den Login über das OAuth Protokoll am HiOrg-Server.
+Der seperate Login-Button erscheint auf der Startseite. In den Einstellungen müssen die Parameter für die Verbindung konfiguriert werden. Hierzu ist eine Client-ID und ein Client-Secret nötig (https://wiki.hiorg-server.de/admin/oauth2)
 
-For OAuth you must create app for certain providers. Login button appear at login page if app id specified. Settings are in "Social login" section of settings page.
-
-## Custom OAuth2/OIDC groups
-
-You can use groups from your custom provider. For that you should specify "Groups claim" in custom OAuth2/OIDC provider settings. That claim should be returned from provider in `id_token` or at user info endpoint. Format should be `array` or comma separated string. Eg (with claim named `roles`)
-
-```json
-{"roles": ["admin", "user"]}
-or
-{"roles": "admin,user"}
-```
-
-You can use provider groups in two ways:
-
-1. Map provider groups to existing nextcloud groups
-2. Create provider groups in nextcloud and associate it to user (if no group mapping specified)
-
-If you want sync groups on every login do not forget to check "Update user profile every login" setting
-
-You can find example how to configure WSO2IS for return roles claim with OIDC at https://medium.com/@dewni.matheesha/claim-mapping-and-retrieving-end-user-information-in-wso2is-cffd5f3937ff
-
-## Telegram
-
-For using telegram login you need create bot and connect it to domain as described here https://core.telegram.org/widgets/login
-
-Then specify bot login and token in "Social login" section of admin settings page
-
-**Telegram auth will not work everywhere another than browser.***
-
-## Built-in OAuth providers
-
-You can create app by followed urls. You can copy link of certain login button to get proper "redirect url" for OAuth app setting.
-
-* [Google](https://console.developers.google.com)
-* [Amazon](https://developer.amazon.com/loginwithamazon/console/site/lwa/overview.html)
-* [Facebook](https://developers.facebook.com/)
-* [Twitter](https://apps.twitter.com/)
-* [GitHub](https://github.com/settings/developers)
-* [Discord](https://discordapp.com/developers/applications/me#top)
-
-Details about "Allow login only from specified domain" google setting you can find here [#44](https://github.com/zorn-v/nextcloud-social-login/issues/44)
-
-Custom providers is on your own. Officially not supported
 
 ## Config
 

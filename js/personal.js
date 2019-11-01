@@ -1,5 +1,5 @@
 jQuery(function ($) {
-  var appName = 'sociallogin';
+  var appName = 'hiorg_oauth';
   var showError = function(text) {
     OC.Notification.showTemporary('<div style="font-weight:bold;color:red">'+text+'<div>', {isHTML: true});
   }
