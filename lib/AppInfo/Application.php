@@ -75,37 +75,11 @@ class Application extends App
                 }
             }
         }
-
-        $useLoginRedirect = $this->providersCount === 1
-            && PHP_SAPI !== 'cli'
-            && $this->config->getSystemValue('social_login_auto_redirect', false);
-        if ($useLoginRedirect && $request->getPathInfo() === '/login') {
-            header('Location: ' . $this->providerUrl);
-            exit();
-        }
     }
 
     public function preDeleteUser(IUser $user)
     {
         $this->query(SocialConnectDAO::class)->disconnectAll($user->getUID());
-    }
-
-    private function addAltLogins($providersType)
-    {
-        $providers = json_decode($this->config->getAppValue($this->appName, $providersType.'_providers', '[]'), true);
-        if (is_array($providers)) {
-            foreach ($providers as $provider) {
-                ++$this->providersCount;
-                $this->providerUrl = $this->urlGenerator->linkToRoute($this->appName.'.login.'.$providersType, [
-                    'provider' => $provider['name'],
-                    'login_redirect_url' => $this->redirectUrl
-                ]);
-                \OC_App::registerLogIn([
-                    'name' => $provider['title'],
-                    'href' => $this->providerUrl,
-                ]);
-            }
-        }
     }
 
     private function query($className)

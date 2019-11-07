@@ -81,50 +81,6 @@ class LoginController extends Controller
      * @NoCSRFRequired
      * @UseSession
      */
-
-     /*
-    public function oauth($provider)
-    {
-        $scopes = [
-            'facebook' => 'email, public_profile',
-        ];
-        $config = [];
-        $providers = json_decode($this->config->getAppValue($this->appName, 'oauth_providers', '[]'), true);
-        if (is_array($providers) && in_array($provider, array_keys($providers))) {
-            foreach ($providers as $name => $prov) {
-                if ($name === $provider) {
-                    $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName . '.login.hiorg');
-                    $config = [
-                        'callback' => $callbackUrl,
-                        'keys'     => [
-                            'id'     => $prov['appid'],
-                            'secret' => $prov['secret'],
-                        ],
-                        'default_group' => $prov['defaultGroup'],
-                    ];
-                    if (isset($scopes[$provider])) {
-                        $config['scope'] = $scopes[$provider];
-                    }
-                    if (isset($prov['auth_params']) && is_array($prov['auth_params'])) {
-                        foreach ($prov['auth_params'] as $k => $v) {
-                            if (!empty($v)) {
-                                $config['authorize_url_parameters'][$k] = $v;
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-        return $this->auth(Provider::class.'\\'.ucfirst($provider), $config, $provider, 'OAuth');
-    }
-    */
-
-    /**
-     * @PublicPage
-     * @NoCSRFRequired
-     * @UseSession
-     */
     public function hiorg()
     {
         $provider = "Hiorg";
@@ -225,7 +181,7 @@ class LoginController extends Controller
         }
         if ($this->userSession->isLoggedIn()) {
             if (!$this->config->getAppValue($this->appName, 'allow_login_connect')) {
-                throw new LoginException($this->l->t('Social login connect is disabled'));
+                throw new LoginException($this->l->t('HiOrg login connect is disabled'));
             }
             if (null !== $user) {
                 throw new LoginException($this->l->t('This account already connected'));
@@ -259,67 +215,67 @@ class LoginController extends Controller
             $this->notifyAdmins($uid, $profile->displayName ?: $profile->identifier, $profile->data['default_group']);
         }
 
-            $user->setDisplayName($profile->displayName ?: $profile->identifier);
-            $user->setEMailAddress((string)$profile->email);
-            
+        $user->setDisplayName($profile->displayName ?: $profile->identifier);
+        $user->setEMailAddress((string)$profile->email);
+        
 
-            if ($profile->photoURL) {
-                $curl = new Curl();
-                try {
-                    $photo = $curl->request($profile->photoURL);
-                    $avatar = $this->avatarManager->getAvatar($uid);
-                    $avatar->set($photo);
-                } catch (\Exception $e) {}
-            }
-            
-            
+        if ($profile->photoURL) {
+            $curl = new Curl();
+            try {
+                $photo = $curl->request($profile->photoURL);
+                $avatar = $this->avatarManager->getAvatar($uid);
+                $avatar->set($photo);
+            } catch (\Exception $e) {}
+        }
+        
+        
 
-            if (!empty($profile->data[ 'group_mapping']) && is_array($profile->data[ 'group_mapping'])) {
-                $groupNames = $profile->data[ 'group_mapping'];
-                $userGroup = $profile->data['gruppe'];
+        if (!empty($profile->data[ 'group_mapping']) && is_array($profile->data[ 'group_mapping'])) {
+            $groupNames = $profile->data[ 'group_mapping'];
+            $userGroup = $profile->data['gruppe'];
 
-                for ($i = 0; $i < 11; $i++) {
-                    $num = strval(2 ** $i);
+            for ($i = 0; $i < 11; $i++) {
+                $num = strval(2 ** $i);
 
                 \OCP\Util::writeLog('hiorg_oauth', "HiOrg-Group ($num) is assigned to (" . strval( $groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
 
-                    if ($groupNames['id_'.$num] != '') {
-                        if ($this->groupManager->groupExists($groupNames['id_'.$num])) {
-                            $group = $this->groupManager->get($groupNames['id_'.$num]);
-                            if ( $userGroup & 2 ** $i) /* 2^i */ {
-                                /* 
-                                user has this HiOrg-Server group
-                                check if user is already a member or add user to group
-                                */
-                                if (!$group->inGroup($user)) {
-                                    $group->addUser($user);
+                if ($groupNames['id_'.$num] != '') {
+                    if ($this->groupManager->groupExists($groupNames['id_'.$num])) {
+                        $group = $this->groupManager->get($groupNames['id_'.$num]);
+                        if ( $userGroup & 2 ** $i) /* 2^i */ {
+                            /* 
+                            user has this HiOrg-Server group
+                            check if user is already a member or add user to group
+                            */
+                            if (!$group->inGroup($user)) {
+                                $group->addUser($user);
                                 \OCP\Util::writeLog( 'hiorg_oauth', "Added user ( $profile->displayName) to group (" . strval($groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
-                                } else {
-                                \OCP\Util::writeLog( 'hiorg_oauth', "User ( $profile->displayName) is not in group (" . strval($groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
-                                }
                             } else {
-                                /*
-                                user does NOT have this HiOrg-Server group
-                                check if user is already a member and remove from group 
-                                */
-                                if ($group->inGroup($user)) {
-                                    $group->removeUser($user);
-                                \OCP\Util::writeLog( 'hiorg_oauth', "Removed user ( $profile->displayName) from group (" . $groupNames['id_'.$num] . ").", \OCP\Util::INFO);
-                                } else {
-                                \OCP\Util::writeLog( 'hiorg_oauth', "User ( $profile->displayName) is not in group (" . $groupNames['id_'.$num] . ").", \OCP\Util::INFO);
-                                }
+                                \OCP\Util::writeLog( 'hiorg_oauth', "User ( $profile->displayName) is not in group (" . strval($groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
                             }
                         } else {
-                        \OCP\Util::writeLog( 'hiorg_oauth', "Group (" . $this->group_id[$num] . ") does not exist!", \OCP\Util::WARNING);
+                            /*
+                            user does NOT have this HiOrg-Server group
+                            check if user is already a member and remove from group 
+                            */
+                            if ($group->inGroup($user)) {
+                                $group->removeUser($user);
+                                \OCP\Util::writeLog( 'hiorg_oauth', "Removed user ( $profile->displayName) from group (" . $groupNames['id_'.$num] . ").", \OCP\Util::INFO);
+                            } else {
+                                \OCP\Util::writeLog( 'hiorg_oauth', "User ( $profile->displayName) is not in group (" . $groupNames['id_'.$num] . ").", \OCP\Util::INFO);
+                            }
                         }
+                    } else {
+                        \OCP\Util::writeLog( 'hiorg_oauth', "Group (" . $this->group_id[$num] . ") does not exist!", \OCP\Util::WARNING);
                     }
                 }
             }
+        }
 
-            $defaultGroup = $profile->data['default_group'];
-            if ($defaultGroup && $group = $this->groupManager->get($defaultGroup)) {
-                $group->addUser($user);
-            }
+        $defaultGroup = $profile->data['default_group'];
+        if ($defaultGroup && $group = $this->groupManager->get($defaultGroup)) {
+            $group->addUser($user);
+        }
 
 
         $this->userSession->completeLogin($user, ['loginName' => $user->getUID(), 'password' => null]);
@@ -367,7 +323,7 @@ class LoginController extends Controller
             $message->setTo($sendTo);
             $message->useTemplate($template);
             try {
-            $errors = $this->mailer->send($message);
+                $errors = $this->mailer->send($message);
             } catch(\Exception $ex)
             {
                 \OCP\Util::writeLog('hiorg_oauth', "Email an Admins konnte nicht geschickt werden.", \OCP\Util::ERROR);

@@ -9,7 +9,7 @@
     </form>
     <br/>
     <?php if ($_['allow_login_connect']): ?>
-    <h2><?php p($l->t('Social login connect')); ?></h2>
+    <h2><?php p($l->t('HiOrg login connect')); ?></h2>
     <ul>
         <?php foreach ($_['connected_logins'] as $title=>$url): ?>
         <li><a href="<?php print_unescaped($url) ?>"><?php p($title) ?></a></li>
@@ -21,12 +21,5 @@
         <li><a href="<?php print_unescaped($url) ?>"><?php p($title) ?></a></li>
         <?php endforeach ?>
     </ul>
-        <?php if ($_['tg_bot']): ?>
-            <script src="https://telegram.org/js/telegram-widget.js?5"
-                data-size="large"
-                data-telegram-login="<?php p($_['tg_bot']) ?>"
-                data-auth-url="<?php print_unescaped($_['tg_redirect_url']) ?>"
-            ></script>
-        <?php endif ?>
     <?php endif ?>
 </div>

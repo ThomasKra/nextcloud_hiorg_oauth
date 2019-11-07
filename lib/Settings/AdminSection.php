@@ -38,7 +38,7 @@ class AdminSection implements IIconSection
      * @return string
      */
     public function getName() {
-        return $this->l->t('Hiorg Login');
+        return $this->l->t('HiOrg login');
     }
 
     /**
