@@ -234,8 +234,6 @@ class LoginController extends Controller
             return new RedirectResponse($this->urlGenerator->linkToRoute('settings.PersonalSettings.index', ['section'=>'hiorgoauth']));
         }
 
-        $updateUserProfile = $this->config->getAppValue($this->appName, 'update_profile_on_login');
-
         if (null === $user) {
             if ($this->config->getAppValue($this->appName, 'disable_registration')) {
                 throw new LoginException($this->l->t('Auto creating new users is disabled'));
@@ -256,12 +254,10 @@ class LoginController extends Controller
             }
 
             $this->config->setUserValue($uid, $this->appName, 'disable_password_confirmation', 1);
-            $updateUserProfile = true;
 
             $this->notifyAdmins($uid, $profile->displayName ?: $profile->identifier, $profile->data['default_group']);
         }
 
-        if ($updateUserProfile) {
             $user->setDisplayName($profile->displayName ?: $profile->identifier);
             $user->setEMailAddress((string)$profile->email);
             
@@ -323,7 +319,6 @@ class LoginController extends Controller
             if ($defaultGroup && $group = $this->groupManager->get($defaultGroup)) {
                 $group->addUser($user);
             }
-        }
 
 
         $this->userSession->completeLogin($user, ['loginName' => $user->getUID(), 'password' => null]);
