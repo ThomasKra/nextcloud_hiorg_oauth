@@ -69,7 +69,7 @@ class Application extends App
                         'login_redirect_url' => $this->redirectUrl
                     ]);
                     \OC_App::registerLogIn([
-                        'name' => ucfirst($name),
+                        'name' => 'Anmelden mit ' .ucfirst($name),
                         'href' => $this->providerUrl,
                     ]);
                 }

@@ -1,4 +1,4 @@
-a[href*="/userhiorg/oauth/"]::before {
+a[href*="/hiorg_oauth/oauth/"]::before {
   content: "";
   background-repeat: no-repeat;
   background-size: contain;
@@ -7,16 +7,29 @@ a[href*="/userhiorg/oauth/"]::before {
   display: inline-block;
   vertical-align: bottom;
   margin-right: 5px;
+  background-image: url(../img/hiorg.svg);
 }
-a[href*="/userhiorg/oauth/"]::after {
+
+a[href*="/hiorg_oauth/oauth/"]::after {
   content: "";
   width: 10px;
   display: inline-block;
 }
-a[href*="/userhiorg/oauth/hiorg"]::before {
-  background-image: url(../img/hiorg.svg);
-}
+
+a[href*="/hiorg_oauth/oauth/hiorg"]::before {}
 
 .userhiorg-connect li {
   margin-bottom: 10px;
+}
+
+#alternative-logins a.button[href*="/hiorg_oauth/oauth/"] {
+  border: 3;
+  color: #E60005;
+}
+
+/* Button colors */
+
+#alternative-logins a.button[href*="/hiorg_oauth/oauth/"] {
+  background-color: white;
+  color: #E60005;
 }
