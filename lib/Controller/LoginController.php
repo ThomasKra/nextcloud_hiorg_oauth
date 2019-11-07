@@ -196,7 +196,7 @@ class LoginController extends Controller
         if (!empty($config['logout_url'])) {
             $this->session->set('hiorgoauth_logout_url', $config['logout_url']);
         } else {
-            $this->session->remove('hiorgoauth_logout_url', $config['logout_url']);
+            $this->session->remove('hiorgoauth_logout_url');
         }
 
         $profile->data['default_group'] = $config['default_group'];
@@ -284,7 +284,7 @@ class LoginController extends Controller
                 for ($i = 0; $i < 11; $i++) {
                     $num = strval(2 ** $i);
 
-                    \OCP\Util::writeLog('social_login', "HiOrg-Group ($num) is assigned to (" . strval( $groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
+                \OCP\Util::writeLog('hiorg_oauth', "HiOrg-Group ($num) is assigned to (" . strval( $groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
 
                     if ($groupNames['id_'.$num] != '') {
                         if ($this->groupManager->groupExists($groupNames['id_'.$num])) {
@@ -296,9 +296,9 @@ class LoginController extends Controller
                                 */
                                 if (!$group->inGroup($user)) {
                                     $group->addUser($user);
-                                    \OCP\Util::writeLog( 'social_login', "Added user ( $profile->displayName) to group (" . strval($groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
+                                \OCP\Util::writeLog( 'hiorg_oauth', "Added user ( $profile->displayName) to group (" . strval($groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
                                 } else {
-                                    \OCP\Util::writeLog( 'social_login', "User ( $profile->displayName) is not in group (" . strval($groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
+                                \OCP\Util::writeLog( 'hiorg_oauth', "User ( $profile->displayName) is not in group (" . strval($groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
                                 }
                             } else {
                                 /*
@@ -307,13 +307,13 @@ class LoginController extends Controller
                                 */
                                 if ($group->inGroup($user)) {
                                     $group->removeUser($user);
-                                    \OCP\Util::writeLog( 'social_login', "Removed user ( $profile->displayName) from group (" . $groupNames['id_'.$num] . ").", \OCP\Util::INFO);
+                                \OCP\Util::writeLog( 'hiorg_oauth', "Removed user ( $profile->displayName) from group (" . $groupNames['id_'.$num] . ").", \OCP\Util::INFO);
                                 } else {
-                                    \OCP\Util::writeLog( 'social_login', "User ( $profile->displayName) is not in group (" . $groupNames['id_'.$num] . ").", \OCP\Util::INFO);
+                                \OCP\Util::writeLog( 'hiorg_oauth', "User ( $profile->displayName) is not in group (" . $groupNames['id_'.$num] . ").", \OCP\Util::INFO);
                                 }
                             }
                         } else {
-                            \OCP\Util::writeLog( 'social_login', "Group (" . $this->group_id[$num] . ") does not exist!", \OCP\Util::WARNING);
+                        \OCP\Util::writeLog( 'hiorg_oauth', "Group (" . $this->group_id[$num] . ") does not exist!", \OCP\Util::WARNING);
                         }
                     }
                 }
@@ -370,7 +370,12 @@ class LoginController extends Controller
             $message = $this->mailer->createMessage();
             $message->setTo($sendTo);
             $message->useTemplate($template);
+            try {
             $errors = $this->mailer->send($message);
+            } catch(\Exception $ex)
+            {
+                \OCP\Util::writeLog('hiorg_oauth', "Email an Admins konnte nicht geschickt werden.", \OCP\Util::ERROR);
+            }
         }
     }
 }
