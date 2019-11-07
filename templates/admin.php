@@ -37,6 +37,11 @@
                 </label>
                 <br />
                 <label>
+                    <?php p($l->t('HiOrg Org.-Kürzel')) ?><br>
+                    <input type="text" name="providers[<?php p($name) ?>][orga]" value="<?php p($provider['orga']) ?>" />
+                </label>
+                <br />
+                <label>
                     <?php p($l->t('Default group')) ?><br>
                     <select name="providers[<?php p($name) ?>][defaultGroup]">
                         <option value=""><?php p($l->t('None')); ?></option>
@@ -60,32 +65,32 @@
                     </label>
                     <h3><?php p($l->t('Groups')) ?></h3>
                     <?php
-                    $num = 0;
-                    $value_name = 'group_id_' . $num;
-                    ?>
+                            $num = 0;
+                            $value_name = 'group_id_' . $num;
+                            ?>
                     <?php
-                    for ($i = 0; $i < 11; $i++) {
-                        $num = 2 ** $i;
-                        $value_name = 'group_id_' . $num;
-                        ?>
+                            for ($i = 0; $i < 11; $i++) {
+                                $num = 2 ** $i;
+                                $value_name = 'group_id_' . $num;
+                                ?>
                         <br />
                         <label>Group ID <?php p($num); ?>
                             <select name="providers[<?php p($name) ?>][group_mapping][id_<?php p($num); ?>]">
                                 <option value=""><?php p($l->t('None')); ?></option>
                                 <?php
-                                foreach ($_['groups'] as $group) {
-                                    ?>
+                                            foreach ($_['groups'] as $group) {
+                                                ?>
                                     <option value="<?php p($group); ?>" <?php p($provider['group_mapping']['id_' . $num] === $group ? 'selected' : '') ?>>
                                         <?php p($group); ?>
                                     </option>
                                 <?php
-                            }
-                            ?>
+                                            }
+                                            ?>
                             </select>
                         </label>
                     <?php
-                }
-                ?>
+                            }
+                            ?>
                 <?php endif ?>
             </div>
         <?php endforeach ?>

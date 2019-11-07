@@ -143,6 +143,7 @@ class LoginController extends Controller
                             'secret' => $prov['secret'],
                         ],
                         'default_group' => $prov['defaultGroup'],
+                        'orga' => $prov['orga'],
                         'group_mapping' => $prov['group_mapping'],
                         'quota' => $prov['quota'],
                     ];

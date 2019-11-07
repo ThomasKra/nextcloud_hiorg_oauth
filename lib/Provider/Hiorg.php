@@ -93,6 +93,14 @@ class Hiorg extends OAuth2
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
+        if (!$data->exists('orga')) {
+            throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
+        }
+
+        if($data->get('orga') != $this->config->get('orga')) {
+            throw new UnexpectedApiResponseException('Falsche orga: "' . $data->get('orga') . '".');
+        }
+
         $userProfile = new User\Profile();
 
         $userProfile->identifier = $data->get( 'username_at_orga');
