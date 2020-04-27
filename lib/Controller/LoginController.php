@@ -248,7 +248,7 @@ class LoginController extends Controller
 
                 $logger->info("HiOrg-Group ($num) is assigned to (" . strval( $groupNames['id_'.$num]) . ").");
 
-                if ($groupNames['id_'.$num] != '') {
+                if ($groupNames['id_'.$num] !== '') {
                     if ($this->groupManager->groupExists($groupNames['id_'.$num])) {
                         $group = $this->groupManager->get($groupNames['id_'.$num]);
                         if ( $userGroup & 2 ** $i) /* 2^i */ {
