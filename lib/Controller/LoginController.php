@@ -167,7 +167,7 @@ class LoginController extends Controller
 
         $profile->data['default_group'] = $config['default_group'];
 
-        if($provider == 'Hiorg')
+        if($provider === 'Hiorg')
         {
             $uid = $profileId;
         }
