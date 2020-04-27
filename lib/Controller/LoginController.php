@@ -246,7 +246,7 @@ class LoginController extends Controller
             for ($i = 0; $i < 11; $i++) {
                 $num = strval(2 ** $i);
 
-                $logger->info("HiOrg-Group ($num) is assigned to (" . strval( $groupNames['id_'.$num]) . ").");
+                $this->logger->info("HiOrg-Group ($num) is assigned to (" . strval( $groupNames['id_'.$num]) . ").");
 
                 if ($groupNames['id_'.$num] !== '') {
                     if ($this->groupManager->groupExists($groupNames['id_'.$num])) {
@@ -258,9 +258,9 @@ class LoginController extends Controller
                             */
                             if (!$group->inGroup($user)) {
                                 $group->addUser($user);
-                                $logger->info("Added user ( $profile->displayName) to group (" . strval($groupNames['id_'.$num]) . ").");
+                                $this->logger->info("Added user ( $profile->displayName) to group (" . strval($groupNames['id_'.$num]) . ").");
                             } else {
-                                $logger->info("User ( $profile->displayName) is not in group (" . strval($groupNames['id_'.$num]) . ").");
+                                $this->logger->info("User ( $profile->displayName) is not in group (" . strval($groupNames['id_'.$num]) . ").");
                             }
                         } else {
                             /*
@@ -269,13 +269,13 @@ class LoginController extends Controller
                             */
                             if ($group->inGroup($user)) {
                                 $group->removeUser($user);
-                                $logger->info("Removed user ( $profile->displayName) from group (" . $groupNames['id_'.$num] . ").");
+                                $this->logger->info("Removed user ( $profile->displayName) from group (" . $groupNames['id_'.$num] . ").");
                             } else {
-                                $logger->info("User ( $profile->displayName) is not in group (" . $groupNames['id_'.$num] . ").");
+                                $this->logger->info("User ( $profile->displayName) is not in group (" . $groupNames['id_'.$num] . ").");
                             }
                         }
                     } else {
-                        $logger->warning("Group (" . $this->group_id[$num] . ") does not exist!");
+                        $this->logger->warning("Group (" . $this->group_id[$num] . ") does not exist!");
                     }
                 }
             }
@@ -335,7 +335,7 @@ class LoginController extends Controller
                 $errors = $this->mailer->send($message);
             } catch(\Exception $ex)
             {
-                $logger->error("Email an Admins konnte nicht geschickt werden.");
+                $this->logger->error("Email an Admins konnte nicht geschickt werden.");
             }
         }
     }
