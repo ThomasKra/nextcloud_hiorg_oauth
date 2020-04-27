@@ -13,6 +13,7 @@ use OCP\IURLGenerator;
 use OCP\IAvatarManager;
 use OCP\IGroupManager;
 use OCP\ISession;
+use OCP\ILogger;
 use OCP\Mail\IMailer;
 use OC\User\LoginException;
 use OCA\HiorgOAuth\Storage\SessionStorage;
@@ -20,6 +21,8 @@ use OCA\HiorgOAuth\Db\SocialConnectDAO;
 use OCA\HiorgOAuth\Provider;
 use Hybridauth\User\Profile;
 use Hybridauth\HttpClient\Curl;
+
+
 
 class LoginController extends Controller
 {
@@ -46,6 +49,9 @@ class LoginController extends Controller
     /** @var SocialConnectDAO */
     private $socialConnect;
 
+    /** @var ILogger */
+    private $logger;
+
 
     public function __construct(
         $appName,
@@ -60,7 +66,8 @@ class LoginController extends Controller
         ISession $session,
         IL10N $l,
         IMailer $mailer,
-        SocialConnectDAO $socialConnect
+        SocialConnectDAO $socialConnect,
+        ILogger $logger
     ) {
         parent::__construct($appName, $request);
         $this->config = $config;
@@ -74,6 +81,8 @@ class LoginController extends Controller
         $this->l = $l;
         $this->mailer = $mailer;
         $this->socialConnect = $socialConnect;
+        $this->logger = $logger;
+
     }
 
     /**
@@ -237,7 +246,7 @@ class LoginController extends Controller
             for ($i = 0; $i < 11; $i++) {
                 $num = strval(2 ** $i);
 
-                \OCP\Util::writeLog('hiorg_oauth', "HiOrg-Group ($num) is assigned to (" . strval( $groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
+                $logger->info("HiOrg-Group ($num) is assigned to (" . strval( $groupNames['id_'.$num]) . ").");
 
                 if ($groupNames['id_'.$num] != '') {
                     if ($this->groupManager->groupExists($groupNames['id_'.$num])) {
@@ -249,9 +258,9 @@ class LoginController extends Controller
                             */
                             if (!$group->inGroup($user)) {
                                 $group->addUser($user);
-                                \OCP\Util::writeLog( 'hiorg_oauth', "Added user ( $profile->displayName) to group (" . strval($groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
+                                $logger->info("Added user ( $profile->displayName) to group (" . strval($groupNames['id_'.$num]) . ").");
                             } else {
-                                \OCP\Util::writeLog( 'hiorg_oauth', "User ( $profile->displayName) is not in group (" . strval($groupNames['id_'.$num]) . ").", \OCP\Util::INFO);
+                                $logger->info("User ( $profile->displayName) is not in group (" . strval($groupNames['id_'.$num]) . ").");
                             }
                         } else {
                             /*
@@ -260,13 +269,13 @@ class LoginController extends Controller
                             */
                             if ($group->inGroup($user)) {
                                 $group->removeUser($user);
-                                \OCP\Util::writeLog( 'hiorg_oauth', "Removed user ( $profile->displayName) from group (" . $groupNames['id_'.$num] . ").", \OCP\Util::INFO);
+                                $logger->info("Removed user ( $profile->displayName) from group (" . $groupNames['id_'.$num] . ").");
                             } else {
-                                \OCP\Util::writeLog( 'hiorg_oauth', "User ( $profile->displayName) is not in group (" . $groupNames['id_'.$num] . ").", \OCP\Util::INFO);
+                                $logger->info("User ( $profile->displayName) is not in group (" . $groupNames['id_'.$num] . ").");
                             }
                         }
                     } else {
-                        \OCP\Util::writeLog( 'hiorg_oauth', "Group (" . $this->group_id[$num] . ") does not exist!", \OCP\Util::WARNING);
+                        $logger->warning("Group (" . $this->group_id[$num] . ") does not exist!");
                     }
                 }
             }
@@ -326,7 +335,7 @@ class LoginController extends Controller
                 $errors = $this->mailer->send($message);
             } catch(\Exception $ex)
             {
-                \OCP\Util::writeLog('hiorg_oauth', "Email an Admins konnte nicht geschickt werden.", \OCP\Util::ERROR);
+                $logger->error("Email an Admins konnte nicht geschickt werden.");
             }
         }
     }

@@ -97,7 +97,7 @@ class Hiorg extends OAuth2
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
         }
 
-        if($data->get('orga') != $this->config->get('orga')) {
+        if($data->get('orga') !== $this->config->get('orga')) {
             throw new UnexpectedApiResponseException('Falsche orga: "' . $data->get('orga') . '".');
         }
 
