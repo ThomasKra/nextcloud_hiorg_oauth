@@ -153,7 +153,8 @@ class LoginController extends Controller
 
         if (!empty($config['authorize_url_parameters']['hd'])) {
             $profileHd = preg_match('#@(.+)#', $profile->email, $m) ? $m[1] : null;
-            if ($config['authorize_url_parameters']['hd'] !== $profileHd) {
+            $allowedHd = array_map('trim', explode(',', $config['authorize_url_parameters']['hd']));
+            if (!in_array($profileHd, $allowedHd)) {
                 $this->storage->clear();
                 throw new LoginException($this->l->t('Login from %s domain is not allowed for %s provider', [$profileHd, $provider]));
             }
@@ -174,7 +175,7 @@ class LoginController extends Controller
         else
         {
             $uid = $provider.'-'.$profileId;
-            if (strlen($uid) > 64) {
+            if (strlen($uid) > 64 || !preg_match('#^[a-z0-9_.@-]+$#i', $profileId)) {
                 $uid = $provider.'-'.md5($profileId);
             }
         }
@@ -221,7 +222,9 @@ class LoginController extends Controller
 
             $this->config->setUserValue($uid, $this->appName, 'disable_password_confirmation', 1);
 
-            $this->notifyAdmins($uid, $profile->displayName ?: $profile->identifier, $profile->data['default_group']);
+            if (!$this->config->getAppValue($this->appName, 'disable_notify_admins')) {
+                $this->notifyAdmins($uid, $profile->displayName ?: $profile->identifier, $profile->data['default_group']);
+            }
         }
 
         $user->setDisplayName($profile->displayName ?: $profile->identifier);
@@ -278,6 +281,7 @@ class LoginController extends Controller
                         $this->logger->warning("Group (" . $this->group_id[$num] . ") does not exist!");
                     }
                 }
+
             }
         }
 
@@ -287,7 +291,7 @@ class LoginController extends Controller
         }
 
 
-        $this->userSession->completeLogin($user, ['loginName' => $user->getUID(), 'password' => null]);
+        $this->userSession->completeLogin($user, ['loginName' => $user->getUID(), 'password' => '']);
         $this->userSession->createSessionToken($this->request, $user->getUID(), $user->getUID());
 
         if ($redirectUrl = $this->session->get('login_redirect_url')) {

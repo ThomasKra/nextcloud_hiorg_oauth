@@ -10,7 +10,9 @@ use OCP\IUserSession;
 use OCP\IRequest;
 use OCP\ISession;
 use OCP\IUser;
+use OCP\IL10N;
 use OCA\HiorgOAuth\Db\SocialConnectDAO;
+use OCP\Util;
 
 class Application extends App
 {
@@ -33,7 +35,8 @@ class Application extends App
 
     public function register()
     {
-        \OCP\Util::addStyle($this->appName, 'style');
+        Util::addStyle($this->appName, 'style');
+        $l = $this->query(IL10N::class);
 
         $this->config = $this->query(IConfig::class);
 
@@ -69,7 +72,7 @@ class Application extends App
                         'login_redirect_url' => $this->redirectUrl
                     ]);
                     \OC_App::registerLogIn([
-                        'name' => 'Anmelden mit ' .ucfirst($name),
+                        'name' => $l->t('Log in with %s', ucfirst($name)),
                         'href' => $this->providerUrl,
                     ]);
                 }

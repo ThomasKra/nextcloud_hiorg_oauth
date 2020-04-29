@@ -2,5 +2,5 @@
 
 require __DIR__ . '/../3rdparty/autoload.php';
 
-$app = new \OCA\HiorgOAuth\AppInfo\Application();
+$app = \OC::$server->query(OCA\HiorgOAuth\AppInfo\Application::class);
 $app->register();

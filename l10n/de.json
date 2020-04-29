@@ -11,10 +11,11 @@
   "Available providers": "Verfügbare Anbieter",
   "HiOrg login connect is disabled": "HiOrg Login ist deaktiviert",
   "Email already registered": "Die E-Mail Adresse ist bereits registiert",
-  "Prevent creating an account if the email address exists in another account": "Verhindere die Erstellung eines Kontos, wenn die E-Mail bereits bereits in einem anderen Konto hinterlegt ist",
+  "Prevent creating an account if the email address exists in another account": "Verhindere die Erstellung eines Kontos, wenn die E-Mail bereits in einem anderen Konto hinterlegt ist",
   "Disable password confirmation on settings change": "Deaktiviere Passwortbestätigung bei der Änderung von Einstellungen",
   "Default Group": "Standard-Gruppe",
   "Groups": "Gruppen-Zuweisung",
-  "Quota": "Speicher-Kontingent"
+  "Quota": "Speicher-Kontingent",
+  "Log in with %s": "Anmelden mit %s"
 },"pluralForm" :"nplurals=2; plural=(n > 1);"
 }
