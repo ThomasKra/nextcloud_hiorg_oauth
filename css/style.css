@@ -1,35 +1,33 @@
-a[href*="/hiorg_oauth/oauth/"]::before {
-  content: "";
-  background-repeat: no-repeat;
-  background-size: contain;
-  width: 18px;
-  height: 18px;
-  display: inline-block;
-  vertical-align: bottom;
-  margin-right: 5px;
-  background-image: url(../img/hiorg.svg);
+#alternative-logins a.hiorg_oauth.button::before {
+    content: '';
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    vertical-align: bottom;
+    margin-right: 5px;
+    background-image: url(../img/hiorg.svg);
 }
 
-a[href*="/hiorg_oauth/oauth/"]::after {
-  content: "";
-  width: 10px;
-  display: inline-block;
+#alternative-logins a.hiorg_oauth.button::after {
+    content: '';
+    width: 10px;
+    display: inline-block;
 }
-
-a[href*="/hiorg_oauth/oauth/hiorg"]::before {}
 
 .userhiorg-connect li {
-  margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 
-#alternative-logins a.button[href*="/hiorg_oauth/oauth/"] {
-  border: 3;
-  color: #E60005;
+#alternative-logins a.hiorg_oauth.button {
+    border: 3;
+    color: #e60005;
 }
 
 /* Button colors */
 
-#alternative-logins a.button[href*="/hiorg_oauth/oauth/"] {
-  background-color: white;
-  color: #E60005;
+#alternative-logins a.hiorg_oauth.button {
+    background-color: white;
+    color: #e60005;
 }

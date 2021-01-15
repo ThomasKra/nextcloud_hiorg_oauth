@@ -71,6 +71,7 @@ class Application extends App
                     \OC_App::registerLogIn([
                         'name' => 'Anmelden mit ' .ucfirst($name),
                         'href' => $this->providerUrl,
+                        'style' => 'hiorg_oauth'
                     ]);
                 }
             }
