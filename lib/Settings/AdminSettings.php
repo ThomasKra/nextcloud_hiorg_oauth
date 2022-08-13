@@ -2,6 +2,7 @@
 
 namespace OCA\HiorgOAuth\Settings;
 
+use OCA\HiorgOAuth\Provider\Hiorg;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\Settings\ISettings;
 use OCP\IGroupManager;
@@ -37,34 +38,23 @@ class AdminSettings implements ISettings
             'allow_login_connect',
             'prevent_create_email_exists',
         ];
-        $oauthProviders = [
-            'Hiorg',            
-        ];
         $groupNames = [];
         $groups = $this->groupManager->search('');
         foreach ($groups as $group) {
             $groupNames[] = $group->getGid();
         }
-        $providers = [];
-        $savedProviders = json_decode($this->config->getAppValue($this->appName, 'oauth_providers', '[]'), true);
-        foreach ($oauthProviders as $provider) {
-            if (array_key_exists($provider, $savedProviders)) {
-                $providers[$provider] = $savedProviders[$provider];
-            } else {
-                $providers[$provider] = [
-                    'appid' => '',
-                    'secret' => '',
-                ];
-            }
-        }
+        $hiorgSettings = json_decode($this->config->getAppValue($this->appName, 'hiorg_oauth_settings', '[]'), true);
+        
         $params = [
             'action_url' => $this->urlGenerator->linkToRoute($this->appName.'.settings.saveAdmin'),
             'groups' => $groupNames,
-            'providers' => $providers,
+            'versions' => Hiorg::$versions,
+            'hiorgSettings' => $hiorgSettings,
         ];
         foreach ($paramsNames as $paramName) {
             $params[$paramName] = $this->config->getAppValue($this->appName, $paramName);
         }
+        $params['callback_url'] = $this->urlGenerator->linkToRouteAbsolute($this->appName . '.login.hiorg');
         return new TemplateResponse($this->appName, 'admin', $params);
     }
 

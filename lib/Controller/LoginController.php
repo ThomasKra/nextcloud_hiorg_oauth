@@ -21,7 +21,7 @@ use OCA\HiorgOAuth\Db\SocialConnectDAO;
 use OCA\HiorgOAuth\Provider;
 use Hybridauth\User\Profile;
 use Hybridauth\HttpClient\Curl;
-
+use OCA\HiorgOAuth\Provider\Hiorg;
 
 
 class LoginController extends Controller
@@ -92,55 +92,49 @@ class LoginController extends Controller
      */
     public function hiorg()
     {
-        $provider = "Hiorg";
-        $scopes = [];
         $config = [];
 
-        $providers = json_decode($this->config->getAppValue($this->appName, 'oauth_providers', '[]'), true);
-        if (is_array($providers) && in_array($provider, array_keys($providers))) {
-            foreach ($providers as $name => $prov) {
-                if ($name === $provider) {
-                    $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName . '.login.hiorg');
-                    $config = [
-                        'callback' => $callbackUrl,
-                        'keys'     => [
-                            'id'     => $prov['appid'],
-                            'secret' => $prov['secret'],
-                        ],
-                        'default_group' => $prov['defaultGroup'],
-                        'orga' => $prov['orga'],
-                        'group_mapping' => $prov['group_mapping'],
-                        'quota' => $prov['quota'],
-                    ];
-                    if (isset($scopes[$provider])) {
-                        $config['scope'] = $scopes[$provider];
-                    }
-                    if (isset($prov['auth_params']) && is_array($prov['auth_params'])) {
-                        foreach ($prov['auth_params'] as $k => $v) {
-                            if (!empty($v)) {
-                                $config['authorize_url_parameters'][$k] = $v;
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-
-        return $this->auth(Provider::class . '\\' . ucfirst($provider), $config, $provider, 'OAuth');
+        $hiorgSettings = json_decode($this->config->getAppValue($this->appName, 'hiorg_oauth_settings', '[]'), true);
+        
+        if (is_array($hiorgSettings)) {
+          $callbackUrl = $this->urlGenerator->linkToRouteAbsolute($this->appName . '.login.hiorg');
+          $config = [
+              'api_version' => $hiorgSettings['api_version'],
+              'callback' => $callbackUrl,
+              'keys'     => [
+                  'id'     => $hiorgSettings['appid'],
+                  'secret' => $hiorgSettings['secret'],
+              ],
+              'default_group' => $hiorgSettings['defaultGroup'],
+              'orga' => $hiorgSettings['orga'],
+              'group_mapping' => $hiorgSettings['group_mapping'],
+              'quota' => $hiorgSettings['quota'],
+          ];
+          
+          $config['authorize_url_parameters']['orga'] = $hiorgSettings['orga'];
+          if (isset($hiorgSettings['auth_params']) && is_array($hiorgSettings['auth_params'])) {
+              foreach ($hiorgSettings['auth_params'] as $k => $v) {
+                  if (!empty($v)) {
+                      $config['authorize_url_parameters'][$k] = $v;
+                  }
+              }
+          }
+      }
+      
+        return $this->auth($config);
     }
     
-    private function auth($class, array $config, $provider, $providerType)
+    private function auth(array $config)
     {
         if (empty($config)) {
-            throw new LoginException($this->l->t('Unknown %s provider: "%s"', [$providerType, $provider]));
+            throw new LoginException($this->l->t('Unknown config for HiOrg Login'));
         }
         if ($redirectUrl = $this->request->getParam('login_redirect_url')) {
             $this->session->set('login_redirect_url', $redirectUrl);
         }
 
         try {
-            $adapter = new $class($config, null, $this->storage);
+            $adapter = new Hiorg($config, null, $this->storage);
             $adapter->authenticate();
             $profile = $adapter->getUserProfile();
         }  catch (\Exception $e) {
@@ -155,7 +149,7 @@ class LoginController extends Controller
             $profileHd = preg_match('#@(.+)#', $profile->email, $m) ? $m[1] : null;
             if ($config['authorize_url_parameters']['hd'] !== $profileHd) {
                 $this->storage->clear();
-                throw new LoginException($this->l->t('Login from %s domain is not allowed for %s provider', [$profileHd, $provider]));
+                throw new LoginException($this->l->t('Login from %s domain is not allowed for HiOrg provider', [$profileHd]));
             }
         }
 
@@ -166,18 +160,8 @@ class LoginController extends Controller
         }
 
         $profile->data['default_group'] = $config['default_group'];
-
-        if($provider === 'Hiorg')
-        {
-            $uid = $profileId;
-        }
-        else
-        {
-            $uid = $provider.'-'.$profileId;
-            if (strlen($uid) > 64) {
-                $uid = $provider.'-'.md5($profileId);
-            }
-        }
+        
+        $uid = $profileId;
         return $this->login($uid, $profile);
     }
 

@@ -2,8 +2,12 @@
 /** @var array $_ */
 /** @var \OCP\IL10N $l */
 
+
 ?>
 <div id="hiorgoauth" class="section">
+  <p>
+    Callback-URL: <pre><?php print_unescaped($_['callback_url']) ?></pre>
+  </p>
     <form id="hiorgoauth_settings" action="<?php print_unescaped($_['action_url']) ?>" method="post">
 
         <p>
@@ -23,40 +27,51 @@
         <button><?php p($l->t('Save')); ?></button>
         <hr />
 
-        <?php foreach ($_['providers'] as $name => $provider) : ?>
             <div class="provider-settings">
-                <h2 class="provider-title"><img src="<?php print_unescaped(image_path('hiorg_oauth', strtolower($name) . '.svg')); ?>" /> <?php p(ucfirst($name)) ?></h2>
+                <h2 class="provider-title"><img src="<?php print_unescaped(image_path('hiorg_oauth', strtolower('Hiorg') . '.svg')); ?>" /> <?php p(ucfirst('Hiorg')) ?></h2>
+                <label>
+                    <?php p($l->t('API Version')) ?><br>
+                    <select name="hiorgSettings[api_version]">
+                      <?php
+                      foreach ($_['versions'] as $version => $version_str) {
+                      ?>
+                        <option value="<?php p($version); ?>" <?php p($_['hiorgSettings']['api_version'] === $version ? 'selected' : '') ?>><?php p($version_str); ?></option>
+                      <?php
+                      }
+                      ?>
+                  </select>
+                </label>
+                <br />
                 <label>
                     <?php p($l->t('Client id')) ?><br>
-                    <input type="text" name="providers[<?php p($name) ?>][appid]" value="<?php p($provider['appid']) ?>" />
+                    <input type="text" name="hiorgSettings[appid]" value="<?php p($_['hiorgSettings']['appid']) ?>" />
                 </label>
                 <br />
                 <label>
                     <?php p($l->t('Client Secret')) ?><br>
-                    <input type="password" name="providers[<?php p($name) ?>][secret]" value="<?php p($provider['secret']) ?>" />
+                    <input type="password" name="hiorgSettings[secret]" value="<?php p($_['hiorgSettings']['secret']) ?>" />
                 </label>
                 <br />
                 <label>
                     <?php p($l->t('HiOrg Org.-Kürzel')) ?><br>
-                    <input type="text" name="providers[<?php p($name) ?>][orga]" value="<?php p($provider['orga']) ?>" />
+                    <input type="text" name="hiorgSettings[orga]" value="<?php p($_['hiorgSettings']['orga']) ?>" />
                 </label>
                 <br />
                 <label>
                     <?php p($l->t('Default group')) ?><br>
-                    <select name="providers[<?php p($name) ?>][defaultGroup]">
+                    <select name="hiorgSettings[defaultGroup]">
                         <option value=""><?php p($l->t('None')); ?></option>
                         <?php foreach ($_['groups'] as $group) : ?>
-                            <option value="<?php p($group) ?>" <?php p($provider['defaultGroup'] === $group ? 'selected' : '') ?>>
+                            <option value="<?php p($group) ?>" <?php p($_['hiorgSettings']['defaultGroup'] === $group ? 'selected' : '') ?>>
                                 <?php p($group) ?>
                             </option>
                         <?php endforeach ?>
                     </select>
                 </label>
-                <?php if ($name === 'Hiorg') : ?>
                     <br />
                     <label>
                         <?php p($l->t('Quota')) ?><br>
-                        <input type="text" name="providers[<?php p($name) ?>][quota]" id="quota" value="<?php p($provider['quota']); ?>" />
+                        <input type="text" name="hiorgSettings[quota]" id="quota" value="<?php p($_['hiorgSettings']['quota']); ?>" />
                         <p>
                             <em>
                                 Standard-Quota für Benutzer vom HiOrg-Server. z.B.: 10 MB (Standard-Abkürzungen wie MB, GB verwenden)
@@ -75,12 +90,12 @@
                                 ?>
                         <br />
                         <label>Group ID <?php p($num); ?>
-                            <select name="providers[<?php p($name) ?>][group_mapping][id_<?php p($num); ?>]">
+                            <select name="hiorgSettings[group_mapping][id_<?php p($num); ?>]">
                                 <option value=""><?php p($l->t('None')); ?></option>
                                 <?php
                                             foreach ($_['groups'] as $group) {
                                                 ?>
-                                    <option value="<?php p($group); ?>" <?php p($provider['group_mapping']['id_' . $num] === $group ? 'selected' : '') ?>>
+                                    <option value="<?php p($group); ?>" <?php p($_['hiorgSettings']['group_mapping']['id_' . $num] === $group ? 'selected' : '') ?>>
                                         <?php p($group); ?>
                                     </option>
                                 <?php
@@ -91,9 +106,7 @@
                     <?php
                             }
                             ?>
-                <?php endif ?>
             </div>
-        <?php endforeach ?>
         <br />
         <button><?php p($l->t('Save')); ?></button>
     </form>
