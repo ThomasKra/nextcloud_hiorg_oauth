@@ -46,15 +46,14 @@ class SettingsController extends Controller
         $disable_registration,
         $allow_login_connect,
         $prevent_create_email_exists,
-        $providers
+        $hiorgSettings
     ) {
         $this->config->setAppValue($this->appName, 'disable_registration', $disable_registration ? true : false);
         $this->config->setAppValue($this->appName, 'allow_login_connect', $allow_login_connect ? true : false);
         $this->config->setAppValue($this->appName, 'prevent_create_email_exists', $prevent_create_email_exists ? true : false);
-        $this->config->setAppValue($this->appName, 'oauth_providers', json_encode($providers));
+        $this->config->setAppValue($this->appName, 'hiorg_oauth_settings', json_encode($hiorgSettings));
 
-        
-        return new JSONResponse(['success' => true]);
+        return new JSONResponse(['success' => true, 'providers' => $hiorgSettings]);
     }
 
     /**

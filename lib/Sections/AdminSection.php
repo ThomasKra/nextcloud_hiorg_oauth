@@ -1,6 +1,6 @@
 <?php
 
-namespace OCA\HiorgOAuth\Settings;
+namespace OCA\HiorgOAuth\Sections;
 
 use OCP\Settings\IIconSection;
 use OCP\IURLGenerator;
