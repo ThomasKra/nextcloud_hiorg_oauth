@@ -71,7 +71,7 @@ class Hiorg extends OAuth2
       StorageInterface    $storage = null,
       LoggerInterface     $logger = null
   ) {
-
+    
     $this->apiVersion = $config['api_version'];
     switch($this->apiVersion){
       case 'v1':
@@ -177,14 +177,11 @@ class Hiorg extends OAuth2
             $userProfile->email = $data->get('email');
 
             $response = $this->apiRequest('https://api.hiorg-server.de/core/v1/personal/selbst');
-
-            
-            $this->logger->error('personal_selbst: '.json_encode($response));
             
             $data_selbst = new Data\Collection($response);
             
             if ($gruppe = $data_selbst->get('data')) {
-              $userProfile->data['gruppe'] = $gruppe->attributes->gruppe;
+              $userProfile->data['gruppe'] = array_sum(array_keys( get_object_vars($gruppe->attributes->gruppen_namen)));
           }
           break;
           default:

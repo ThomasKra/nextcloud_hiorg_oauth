@@ -18,7 +18,6 @@ use OCP\Mail\IMailer;
 use OC\User\LoginException;
 use OCA\HiorgOAuth\Storage\SessionStorage;
 use OCA\HiorgOAuth\Db\SocialConnectDAO;
-use OCA\HiorgOAuth\Provider;
 use Hybridauth\User\Profile;
 use Hybridauth\HttpClient\Curl;
 use OCA\HiorgOAuth\Provider\Hiorg;
@@ -227,15 +226,16 @@ class LoginController extends Controller
             $groupNames = $profile->data[ 'group_mapping'];
             $userGroup = $profile->data['gruppe'];
 
+            $this->logger->debug('User Group: '.$userGroup);
+
             for ($i = 0; $i < 11; $i++) {
                 $num = strval(2 ** $i);
-
-                $this->logger->info("HiOrg-Group ($num) is assigned to (" . strval( $groupNames['id_'.$num]) . ").");
-
                 if ($groupNames['id_'.$num] !== '') {
+                    $this->logger->info("HiOrg-Group ($num) is assigned to (" . strval( $groupNames['id_'.$num]) . ").");
                     if ($this->groupManager->groupExists($groupNames['id_'.$num])) {
                         $group = $this->groupManager->get($groupNames['id_'.$num]);
                         if ( $userGroup & 2 ** $i) /* 2^i */ {
+                          $this->logger->debug('User is in group '. (2 ** $i));
                             /* 
                             user has this HiOrg-Server group
                             check if user is already a member or add user to group
