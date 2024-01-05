@@ -6,7 +6,7 @@
 ?>
 <div id="hiorgoauth" class="section">
   <p>
-    Callback-URL: <pre><?php print_unescaped($_['callback_url']) ?></pre>
+    Callback-URL: <br/><code><?php print_unescaped($_['callback_url']) ?></code>
   </p>
     <form id="hiorgoauth_settings" action="<?php print_unescaped($_['action_url']) ?>" method="post">
 
@@ -89,7 +89,7 @@
                                 $value_name = 'group_id_' . $num;
                                 ?>
                         <br />
-                        <label>Group ID <?php p($num); ?>
+                        <label>Group ID <?php p($num); ?><br/>
                             <select name="hiorgSettings[group_mapping][id_<?php p($num); ?>]">
                                 <option value=""><?php p($l->t('None')); ?></option>
                                 <?php

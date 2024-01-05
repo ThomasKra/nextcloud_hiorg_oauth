@@ -18,7 +18,7 @@ class SessionStorage implements StorageInterface
     /**
     * {@inheritdoc}
     */
-    public function get($key)
+    public function get($key): mixed
     {
         return $this->session->get($key);
     }
@@ -26,7 +26,7 @@ class SessionStorage implements StorageInterface
     /**
     * {@inheritdoc}
     */
-    public function set($key, $value)
+    public function set($key, $value): void
     {
         $this->session->set($key, $value);
     }
@@ -34,7 +34,7 @@ class SessionStorage implements StorageInterface
     /**
     * {@inheritdoc}
     */
-    public function delete($key)
+    public function delete($key): void
     {
         $this->session->remove($key);
     }
@@ -42,7 +42,7 @@ class SessionStorage implements StorageInterface
     /**
     * {@inheritdoc}
     */
-    public function deleteMatch($key)
+    public function deleteMatch($key): void
     {
         foreach ($this->session as $k => $v) {
             if (strstr($k, $key)) {
@@ -54,7 +54,7 @@ class SessionStorage implements StorageInterface
     /**
     * {@inheritdoc}
     */
-    public function clear()
+    public function clear(): void
     {
         $this->session->clear();
     }

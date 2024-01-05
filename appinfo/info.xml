@@ -5,7 +5,7 @@
     <name>Hiorg OAuth Login</name>
     <summary>Login via Hiorg with OAuth</summary>
     <description>Login via Hiorg with OAuth</description>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
     <licence>agpl</licence>
     <author>krause</author>
     <namespace>HiorgOAuth</namespace>
@@ -15,7 +15,7 @@
     <bugs>https://github.com/ThomasKra/nextcloud_hiorg_oauth/issues</bugs>
     <repository>https://github.com/ThomasKra/nextcloud_hiorg_oauth</repository>
     <dependencies>
-        <nextcloud min-version="23" max-version="25" />
+        <nextcloud min-version="23" max-version="27" />
     </dependencies>
     <settings>
         <admin>OCA\HiorgOAuth\Settings\AdminSettings</admin>
