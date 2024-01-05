@@ -32,10 +32,11 @@ use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 use Doctrine\DBAL\Types\Types;
 
+
 /**
  * Auto-generated migration step: Please modify to your needs!
  */
-class Version0200Date20220810141219 extends SimpleMigrationStep {
+class Version0220Date20240105111600 extends SimpleMigrationStep {
 
 	/**
 	 * @param IOutput $output
@@ -55,17 +56,14 @@ class Version0200Date20220810141219 extends SimpleMigrationStep {
 		/** @var ISchemaWrapper $schema */
     $schema = $schemaClosure();
 
-    if (!$schema->hasTable('hiorgoauth_connect')) {
-        $table = $schema->createTable('hiorgoauth_connect');
-        $table->addColumn('uid', Types::STRING, [
-                'notnull' => true,
-        ]);
-        $table->addColumn('identifier', Types::STRING, [
-                'notnull' => true,
-                'length' => 190,
-        ]);
-        $table->addUniqueIndex(['identifier'], 'hiorgoauth_connect_id');
-    }
+    $table = $schema->getTable('hiorgoauth_connect');
+		if (!$table->hasColumn('id')) {
+			$table->addColumn('id', Types::BIGINT, [
+				'autoincrement' => true,
+				'unsigned' => true,
+			]);
+			$table->setPrimaryKey(['id']);
+		}
     return $schema;
 	}
 
