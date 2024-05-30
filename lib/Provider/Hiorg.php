@@ -148,8 +148,10 @@ class Hiorg extends OAuth2
         }
 
         $userProfile = new User\Profile();
+        $search = array("Ä", "Ö", "Ü", "ä", "ö", "ü", "ß");
+        $replace = array("Ae", "Oe", "Ue", "ae", "oe", "ue", "ss");
 
-        $userProfile->identifier = $data->get('username_at_orga');
+        $userProfile->identifier = str_replace($search, $replace, $data->get('username_at_orga'));
         $userProfile->displayName = $data->get('fullname');
         $userProfile->firstName = $data->get('vorname');
         $userProfile->lastName = $data->get('name');
