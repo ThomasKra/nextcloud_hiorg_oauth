@@ -5,3 +5,13 @@ Der seperate Login-Button erscheint auf der Startseite. In den Einstellungen mü
 
 
 Für eine Verwendung von API Version 2 ist zusätzlich die Berechtigung für den Scope 'personal/selbst:read' notwendig.
+
+## Unterstützte Versionen
+
+Aktuell unterstützte Versionen sind:
+
+-   Nextcloud 29
+
+## Version numbering
+
+Dieses Projekt folgt semantischer Versionierung. Die Hauptversion entspricht immer der Nextcloud Version auf die das Release abzielt.

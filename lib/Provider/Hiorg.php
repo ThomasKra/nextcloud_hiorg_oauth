@@ -96,6 +96,9 @@ class Hiorg extends OAuth2
         $this->authorizeUrl = $this->apiBaseUrl . '/authorize.php';
         $this->accessTokenUrl = $this->apiBaseUrl . '/token.php';
         $this->profileUrl = $this->apiBaseUrl . '/user.php';
+        $this->AuthorizeUrlParameters += [
+          'ov' => $config['orga']
+        ];
         break;
       case 'v2':
         $this->scope = $config['scope'];

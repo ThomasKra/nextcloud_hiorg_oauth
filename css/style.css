@@ -21,8 +21,8 @@
 }
 
 #alternative-logins a.hiorg_oauth.button-vue {
-  background-color: white;
-  color: #e60005;
+  background-color: white !important;
+  color: #e60005 !important;
 }
 
 /* Button colors */
