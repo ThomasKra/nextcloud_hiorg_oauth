@@ -5,16 +5,16 @@ namespace OCA\HiorgOAuth\AppInfo;
 use OCP\AppFramework\App;
 use OCP\IURLGenerator;
 use OCP\IConfig;
-use OCP\IUserManager;
 use OCP\IUserSession;
 use OCP\ISession;
-use OCP\IUser;
 use OCP\Util;
 use OCA\HiorgOAuth\Db\SocialConnectDAO;
 use OCA\HiorgOAuth\Provider\HiorgLogin;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\AppFramework\Bootstrap\IBootContext;
+use OCP\EventDispatcher\IEventDispatcher;
+use OCP\User\Events\BeforeUserDeletedEvent;
 use Psr\Container\ContainerInterface;
 
 class Application extends App implements IBootstrap
@@ -49,8 +49,10 @@ class Application extends App implements IBootstrap
     // Zugriffsmöglichkeit auf die Konfiguration
     $this->config = $this->getContainer()->get(IConfig::class);
 
+    $dispatcher = $this->getContainer()->get(IEventDispatcher::class);
+
     // PreDelete Hook registrieren
-    $this->getContainer()->get(IUserManager::class)->listen('\OC\User', 'preDelete', [$this, 'preDeleteUser']);
+    $dispatcher->addListener(BeforeUserDeletedEvent::class, [$this, 'preDeleteUser']);
 
     // UserSession abfragen
     $userSession = $this->getContainer()->get(IUserSession::class);
@@ -85,12 +87,12 @@ class Application extends App implements IBootstrap
   }
 
   /**
-   * Hook vor dem Löschen des Benutzers
+   * Event Listener vor dem Löschen des Benutzers
    * @return void
    */
-  public function preDeleteUser(IUser $user): void
+  public function preDeleteUser(BeforeUserDeletedEvent $event): void
   {
     // Vor dem Löschen, alle Benutzer mit dieser ID abmelden
-    $this->getContainer()->get(SocialConnectDAO::class)->disconnectAll($user->getUID());
+    $this->getContainer()->get(SocialConnectDAO::class)->disconnectAll($event->getUser()->getUID());
   }
 }

@@ -1,6 +1,6 @@
 {
     "require-dev": {
-        "nextcloud/ocp": "^28.0",
+        "nextcloud/ocp": "^32.0",
         "doctrine/dbal": "^3.7"
     }
 }

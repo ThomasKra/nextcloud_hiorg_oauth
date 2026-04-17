@@ -6,7 +6,7 @@ jQuery(function ($) {
   $('#hiorgoauth_settings').submit(function (e) {
     e.preventDefault();
     $.post(this.action, $(this).serialize())
-      .success(function (data) {
+      .done(function (data) {
         if (data) {
           if (data.success) {
             OC.Notification.showTemporary(t(appName, 'Settings for hiorg oauth successfully saved'));
@@ -15,7 +15,7 @@ jQuery(function ($) {
           }
         }
       })
-      .error(function () {
+      .fail(function () {
         showError(t(appName, 'Some error occurred while saving settings'));
       });
   });
@@ -38,7 +38,7 @@ jQuery(function ($) {
   }
 
   function createDelegate(providerType){
-    $('#'+providerType+'_providers').delegate('.'+providerType+'-remove', 'click', function () {
+    $('#'+providerType+'_providers').on('click', '.'+providerType+'-remove', function () {
       var $provider = $(this).parents('.provider-settings');
       var providerTitle = $provider.find('[name$="[title]"]').val();
       var needConfirm = $provider.find('input').filter(function () {return this.value}).length > 0;
@@ -57,13 +57,13 @@ jQuery(function ($) {
       } else {
         $provider.remove();
       }
-    }).delegate('.group-mapping-add', 'click', function () {
+    }).on('click', '.group-mapping-add', function () {
       var $provider = $(this).parents('.provider-settings');
       var $tpl = $provider.find('.group-mapping-tpl');
       $provider.append('<div>'+$tpl.html()+'</div>');
-    }).delegate('.group-mapping-remove', 'click', function () {
+    }).on('click', '.group-mapping-remove', function () {
       $(this).parent().remove();
-    }).delegate('.foreign-group', 'input', function () {
+    }).on('input', '.foreign-group', function () {
       var $this = $(this);
       var newName = this.value ? $this.data('name-tpl')+'['+this.value+']' : '';
       $this.next('.local-group').attr('name', newName)

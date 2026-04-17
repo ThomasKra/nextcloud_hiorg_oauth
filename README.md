@@ -10,7 +10,9 @@ Für eine Verwendung von API Version 2 ist zusätzlich die Berechtigung für den
 
 Aktuell unterstützte Versionen sind:
 
--   Nextcloud 29
+-   Nextcloud 30
+-   Nextcloud 31
+-   Nextcloud 32
 
 ## Version numbering
 
