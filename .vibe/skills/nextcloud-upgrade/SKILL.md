@@ -1,5 +1,5 @@
 ---
-name: nextcloud:upgrade
+name: nextcloud-upgrade
 description: Upgrade a Nextcloud app to a newer Nextcloud version by updating dependencies, checking for breaking changes, and applying necessary code changes. Creates changes in a separate branch dev/NC<target_version>.
 permissions:
   - file_system:read
