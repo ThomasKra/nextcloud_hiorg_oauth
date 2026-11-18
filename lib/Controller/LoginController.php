@@ -13,6 +13,7 @@ use OCP\IURLGenerator;
 use OCP\IAvatarManager;
 use OCP\IGroupManager;
 use OCP\ISession;
+use OCP\Group\ISubAdmin;
 use Psr\Log\LoggerInterface;
 use OCP\Mail\IMailer;
 use OCA\HiorgOAuth\Storage\SessionStorage;
@@ -37,6 +38,8 @@ class LoginController extends Controller
   private $avatarManager;
   /** @var IGroupManager */
   private $groupManager;
+  /** @var ISubAdmin */
+  private $subAdmin;
   /** @var ISession */
   private $session;
   /** @var IL10N */
@@ -60,6 +63,7 @@ class LoginController extends Controller
     IUserSession $userSession,
     IAvatarManager $avatarManager,
     IGroupManager $groupManager,
+    ISubAdmin $subAdmin,
     ISession $session,
     IL10N $l,
     IMailer $mailer,
@@ -74,6 +78,7 @@ class LoginController extends Controller
     $this->userSession = $userSession;
     $this->avatarManager = $avatarManager;
     $this->groupManager = $groupManager;
+    $this->subAdmin = $subAdmin;
     $this->session = $session;
     $this->l = $l;
     $this->mailer = $mailer;
@@ -275,7 +280,7 @@ class LoginController extends Controller
     $admins = $this->groupManager->get('admin')->getUsers();
     if ($groupId) {
       $group = $this->groupManager->get($groupId);
-      $subAdmins = $this-> $this->groupManager->getSubAdmin()->getGroupsSubAdmins($group);
+      $subAdmins = $this->subAdmin->getGroupsSubAdmins($group);
       foreach ($subAdmins as $user) {
         if (!in_array($user, $admins)) {
           $admins[] = $user;
