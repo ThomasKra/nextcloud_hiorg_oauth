@@ -1,6 +1,6 @@
 ---
 name: nextcloud:upgrade
-description: Upgrade a Nextcloud app to a newer Nextcloud version by updating dependencies, checking for breaking changes, and applying necessary code changes.
+description: Upgrade a Nextcloud app to a newer Nextcloud version by updating dependencies, checking for breaking changes, and applying necessary code changes. Creates changes in a separate branch dev/NC<target_version>.
 permissions:
   - file_system:read
   - file_system:write
@@ -13,7 +13,7 @@ permissions:
 
 ## Purpose
 
-This skill automates the process of upgrading a Nextcloud app to support a newer Nextcloud version. It handles dependency updates, breaking change detection, code modifications, and metadata updates.
+This skill automates the process of upgrading a Nextcloud app to support a newer Nextcloud version. It creates a new branch `dev/NC<target_version>`, handles dependency updates, breaking change detection, code modifications, and metadata updates.
 
 ## When to Use
 
@@ -27,6 +27,7 @@ This skill automates the process of upgrading a Nextcloud app to support a newer
 - Valid `appinfo/info.xml` in the app root
 - Composer installed and available in PATH
 - Git initialized repository
+- Clean working directory (no uncommitted changes)
 
 ## Usage
 
@@ -50,14 +51,50 @@ The skill can be invoked in several ways:
    nextcloud:upgrade --target 35 --dry-run
    ```
 
+4. **With custom branch name** (optional):
+   ```
+   nextcloud:upgrade --target 35 --branch dev/NC35-custom
+   ```
+
 ## Configuration
 
 ### Environment Variables
 
 - `NC_TARGET_VERSION`: Target Nextcloud version (overrides interactive prompt)
 - `NC_DRY_RUN`: Set to "true" to preview changes without applying them
+- `NC_BRANCH`: Custom branch name (overrides default `dev/NC<version>`)
 
 ## Implementation Steps
+
+### Step 0: Pre-Flight Checks
+
+**Before any changes, the skill performs validation:**
+
+```bash
+# Check we're in a git repository
+if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+    echo "Error: Not in a git repository"
+    exit 1
+fi
+
+# Check working directory is clean
+if ! git diff --quiet && ! git diff --cached --quiet; then
+    echo "Error: Working directory has uncommitted changes. Please commit or stash them first."
+    git status --short
+    exit 1
+fi
+
+# Check required files exist
+if [ ! -f "appinfo/info.xml" ]; then
+    echo "Error: appinfo/info.xml not found"
+    exit 1
+fi
+
+if [ ! -f "composer.json" ]; then
+    echo "Error: composer.json not found"
+    exit 1
+fi
+```
 
 ### Step 1: Determine Current State
 
@@ -70,6 +107,9 @@ CURRENT_MAX=$(grep -oP 'max-version="\K[^"]+' appinfo/info.xml)
 
 # Read current OCP version from composer.json
 CURRENT_OCP=$(grep -oP '"nextcloud/ocp": "\K[^"]+' composer.json)
+
+# Read current app version
+CURRENT_APP_VERSION=$(grep -oP '<version>\K[^<]+' appinfo/info.xml)
 ```
 
 ### Step 2: Prompt for Target Version
@@ -79,6 +119,7 @@ If not provided via environment variable or argument, the skill prompts:
 ```
 Current Nextcloud version: 29 (min: 29, max: 29)
 Current OCP version: ^28.0
+Current app version: 20.0.0
 
 Enter target Nextcloud version: [30-35]:
 ```
@@ -90,7 +131,36 @@ The skill validates that:
 - Target version is supported (29-35 currently)
 - PHP version requirements can be met
 
-### Step 4: Update composer.json
+### Step 4: Create Target Branch
+
+**Create a new branch for the upgrade:**
+
+```bash
+# Determine branch name
+TARGET_BRANCH=${NC_BRANCH:-dev/NC$TARGET_VERSION}
+
+# Check if branch already exists
+git fetch origin $TARGET_BRANCH > /dev/null 2>&1
+if git show-ref --quiet refs/heads/$TARGET_BRANCH > /dev/null 2>&1; then
+    echo "Branch $TARGET_BRANCH already exists locally."
+    read -p "Checkout existing branch? [y/N]: " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        git checkout $TARGET_BRANCH
+    else
+        echo "Aborting."
+        exit 1
+    fi
+else
+    # Create and checkout new branch
+    git checkout -b $TARGET_BRANCH
+    echo "Created and checked out branch: $TARGET_BRANCH"
+fi
+```
+
+This ensures all changes are made in an isolated branch (`dev/NC35`, `dev/NC34`, etc.).
+
+### Step 5: Update composer.json
 
 Updates the `nextcloud/ocp` dependency to match the target version:
 
@@ -112,7 +182,7 @@ Updates the `nextcloud/ocp` dependency to match the target version:
 }
 ```
 
-### Step 5: Run Composer Update
+### Step 6: Run Composer Update
 
 ```bash
 composer update nextcloud/ocp --with-dependencies
@@ -120,7 +190,7 @@ composer update nextcloud/ocp --with-dependencies
 
 This updates the dependencies in `composer.lock`.
 
-### Step 6: Check for Breaking Changes
+### Step 7: Check for Breaking Changes
 
 The skill checks for known breaking changes between the current and target versions:
 
@@ -157,7 +227,7 @@ The skill checks for known breaking changes between the current and target versi
 - ✅ All deprecated methods removed
 - ✅ Full type safety enforcement
 
-### Step 7: Apply Code Changes
+### Step 8: Apply Code Changes
 
 Based on the target version, the skill applies necessary transformations:
 
@@ -234,7 +304,7 @@ public function methodName(
 - Address any deprecation warnings
 - Optionally use new PHP 8.3 features
 
-### Step 8: Update appinfo/info.xml
+### Step 9: Update appinfo/info.xml
 
 Updates the app version and Nextcloud dependencies:
 
@@ -262,17 +332,69 @@ Updates the app version and Nextcloud dependencies:
 
 The major version is set to match the target Nextcloud version.
 
+### Step 10: Commit Changes
+
+After all changes are applied, the skill commits them to the branch:
+
+```bash
+# Determine commit message
+if [ -z "$NC_DRY_RUN" ]; then
+    git add -A
+    git commit -m "feat(nc$TARGET_VERSION): Update to Nextcloud v$TARGET_VERSION compatibility
+
+    Changes:
+    - Updated nextcloud/ocp to ^$TARGET_VERSION.0
+    - Applied NC32 breaking change fixes (if applicable)
+    - Applied NC33 breaking change fixes (if applicable)
+    - Applied NC34 breaking change fixes (if applicable)
+    - Applied NC35 breaking change fixes (if applicable)
+    - Updated app version to $TARGET_VERSION.0.0
+    - Updated dependencies to min-version=\"$TARGET_VERSION\" max-version=\"$TARGET_VERSION\"
+
+    Generated by Mistral Vibe.
+    Co-Authored-By: Mistral Vibe <vibe@mistral.ai>"
+    
+    echo "Changes committed to branch: $TARGET_BRANCH"
+fi
+```
+
+### Step 11: Summary and Next Steps
+
+The skill provides a summary:
+
+```
+Upgrade to Nextcloud $TARGET_VERSION Complete!
+=========================================
+
+Branch: $TARGET_BRANCH
+Files changed: X
+Lines added: Y
+Lines removed: Z
+
+Changes applied:
+✓ Updated composer.json
+✓ Updated composer.lock
+✓ Updated appinfo/info.xml
+✓ Applied breaking change fixes for versions: [list]
+
+Next steps:
+1. Review changes: git diff origin/$(git branch --show-current)...$TARGET_BRANCH
+2. Test the app with Nextcloud $TARGET_VERSION
+3. Push the branch: git push origin $TARGET_BRANCH
+4. Create a pull request
+```
+
 ## Version Mapping Table
 
-| Nextcloud Version | App Major Version | PHP Version | Notes |
-|-------------------|-------------------|-------------|-------|
-| 29 | 29 | 8.0-8.1 | Current baseline |
-| 30 | 30 | 8.0-8.1 | No major breaking changes |
-| 31 | 31 | 8.0-8.1 | No major breaking changes |
-| 32 | 32 | 8.0-8.2 | Event system, jQuery, QueryBuilder |
-| 33 | 33 | 8.2+ | Authentication flow |
-| 34 | 34 | 8.2+ | Type safety, verification |
-| 35 | 35 | 8.3+ | PHP 8.3, full cleanup |
+| Nextcloud Version | App Major Version | PHP Version | Branch Name | Notes |
+|-------------------|-------------------|-------------|-------------|-------|
+| 29 | 29 | 8.0-8.1 | dev/NC29 | Current baseline |
+| 30 | 30 | 8.0-8.1 | dev/NC30 | No major breaking changes |
+| 31 | 31 | 8.0-8.1 | dev/NC31 | No major breaking changes |
+| 32 | 32 | 8.0-8.2 | dev/NC32 | Event system, jQuery, QueryBuilder |
+| 33 | 33 | 8.2+ | dev/NC33 | Authentication flow |
+| 34 | 34 | 8.2+ | dev/NC34 | Type safety, verification |
+| 35 | 35 | 8.3+ | dev/NC35 | PHP 8.3, full cleanup |
 
 ## Safety Mechanisms
 
@@ -280,10 +402,11 @@ The major version is set to match the target Nextcloud version.
 
 Before making any changes, the skill performs:
 
-1. **Backup creation**: Creates a backup of modified files
-2. **Syntax check**: Validates PHP syntax after changes
-3. **Dependency check**: Verifies composer dependencies are compatible
+1. **Backup creation**: Creates a backup of modified files in `.vibe/backup/`
+2. **Git validation**: Ensures we're in a git repo with clean working directory
+3. **File validation**: Verifies required files exist
 4. **Version validation**: Ensures target version is supported
+5. **Branch validation**: Checks if target branch already exists
 
 ### Dry Run Mode
 
@@ -291,18 +414,22 @@ When `--dry-run` or `NC_DRY_RUN=true` is set:
 - All changes are previewed but not applied
 - Shows exactly what would be changed
 - Allows review before actual modification
+- Does NOT create or checkout any branch
+- Does NOT make any file changes
 
 ### Rollback Instructions
 
 If issues occur after upgrade:
 ```bash
-# Revert all changes
-git checkout .
-composer install
+# Return to original branch
+git checkout <original-branch>
 
-# Or for specific files
-git checkout appinfo/info.xml composer.json
-composer install
+# Or delete the upgrade branch
+git branch -D dev/NC$TARGET_VERSION
+
+# Or reset the branch to origin
+git fetch origin
+git reset --hard origin/<original-branch>
 ```
 
 ## Example: Upgrade from NC29 to NC35
@@ -310,34 +437,42 @@ composer install
 ```
 $ vibe:nextcloud:upgrade
 
-Nextcloud App Upgrade Skill
-============================
+Nextcloud App Version Upgrade Skill
+====================================
 
 Analyzing current state...
+✓ Git repository: clean
 ✓ Found appinfo/info.xml
 ✓ Found composer.json
 
 Current state:
 - App: hiorg_oauth
 - Current NC version: 29 (min: 29, max: 29)
+- Current OCP version: ^28.0
 - Current app version: 20.0.0
-- Current OCP: ^28.0
+- Current branch: dev/NC32
 
-Target Nextcloud version: 35
+Enter target Nextcloud version: [30-35]: 35
+
+Target branch will be: dev/NC35
 
 Changes to apply:
 ─────────────────
-1. [NC32] Update composer.json: nextcloud/ocp ^28.0 → ^35.0
-2. [NC32] Apply jQuery method updates (settings.js)
-3. [NC32] Apply QueryBuilder changes (SocialConnectDAO.php)
-4. [NC32] Migrate event system (Application.php)
-5. [NC33] Update authentication flow (LoginController.php)
-6. [NC35] Remove @disregard comments
-7. [NC35] Add type hints
-8. [ALL] Update info.xml version: 20.0.0 → 35.0.0
-9. [ALL] Update info.xml dependencies: min="29",max="29" → min="35",max="35"
+1. Create branch: dev/NC35
+2. [NC32] Update composer.json: nextcloud/ocp ^28.0 → ^35.0
+3. [NC32] Apply jQuery method updates (settings.js)
+4. [NC32] Apply QueryBuilder changes (SocialConnectDAO.php)
+5. [NC32] Migrate event system (Application.php)
+6. [NC33] Update authentication flow (LoginController.php)
+7. [NC35] Remove @disregard comments
+8. [NC35] Add type hints
+9. [ALL] Update info.xml version: 20.0.0 → 35.0.0
+10. [ALL] Update info.xml dependencies: min="29",max="29" → min="35",max="35"
 
-Apply these changes? [y/N]: y
+Apply these changes to branch dev/NC35? [y/N]: y
+
+Creating branch dev/NC35...
+✓ Branch created and checked out
 
 Applying changes...
 ✓ Updated composer.json
@@ -350,19 +485,55 @@ Applying changes...
 ✓ Added type hints
 ✓ Updated info.xml
 
-Upgrade complete!
+Committing changes...
+✓ Changes committed to dev/NC35
 
-Summary:
-- Files changed: 8
-- Lines added: 45
-- Lines removed: 32
+Upgrade to Nextcloud 35 Complete!
+================================
+
+Branch: dev/NC35
+Files changed: 8
+Lines added: 45
+Lines removed: 32
 
 Next steps:
-1. Test the app with Nextcloud 35
-2. Run PHP 8.3 compatibility checks
-3. Review changes with git diff
-4. Commit the changes
+1. Review changes: git diff dev/NC32...dev/NC35
+2. Test the app with Nextcloud 35
+3. Push the branch: git push origin dev/NC35
+4. Create a pull request
 ```
+
+## Branching Strategy
+
+### Default Branch Naming
+
+The skill uses the pattern `dev/NC<TARGET_VERSION>` by default:
+- Target 30 → `dev/NC30`
+- Target 31 → `dev/NC31`
+- Target 32 → `dev/NC32`
+- Target 33 → `dev/NC33`
+- Target 34 → `dev/NC34`
+- Target 35 → `dev/NC35`
+
+### Custom Branch Name
+
+Use `--branch` or `NC_BRANCH` environment variable:
+```bash
+# Using argument
+nextcloud:upgrade --target 35 --branch feature/nextcloud35-upgrade
+
+# Using environment variable
+export NC_BRANCH=feature/nc35
+nextcloud:upgrade --target 35
+```
+
+### Branch Management
+
+The skill handles branch operations safely:
+1. **Existing branch**: Prompts before checking out
+2. **New branch**: Creates and checks out automatically
+3. **Origin check**: Verifies if branch exists on remote
+4. **Clean state**: Ensures working directory is clean before creating branch
 
 ## Known Limitations
 
@@ -375,6 +546,8 @@ Next steps:
 4. **API Changes**: If your app uses Nextcloud APIs that changed, you may need to update those calls manually.
 
 5. **Testing**: This skill does not automatically test your app. Manual testing is required.
+
+6. **Merge Conflicts**: If the target branch already exists with changes, you may need to resolve conflicts manually.
 
 ## Manual Intervention Points
 
@@ -397,11 +570,25 @@ grep -r "completeLogin\|createSessionToken" lib/
 
 # Verify type hints
 grep -r "public function" lib/ | grep -v ": " | head -20
+
+# Check current branch
+git branch --show-current
+
+# View changes before committing
+git diff --cached
 ```
 
 ## Troubleshooting
 
 ### Common Issues and Solutions
+
+**Issue: Working directory has uncommitted changes**
+```
+Solution:
+1. Commit your changes: git commit -am "your message"
+2. Or stash them: git stash
+3. Then run the skill again
+```
 
 **Issue: Composer update fails**
 ```
@@ -410,6 +597,14 @@ Solution:
 2. Update PHP if needed
 3. Try: composer update --with-all-dependencies
 4. Check for conflicting packages in composer.json
+```
+
+**Issue: Branch already exists**
+```
+Solution:
+1. Delete the branch: git branch -D dev/NC35
+2. Or checkout and reset: git checkout dev/NC35 && git reset --hard
+3. Then run the skill again
 ```
 
 **Issue: Breaking changes not detected**
@@ -426,7 +621,7 @@ Solution:
 1. Check Nextcloud log: tail -f data/nextcloud.log
 2. Verify PHP version: php -v
 3. Check all dependencies: composer status
-4. Review recent changes: git diff
+4. Review recent changes: git diff dev/NC32...dev/NC35
 ```
 
 **Issue: Type errors in PHP 8.2/8.3**
@@ -445,6 +640,7 @@ Solution:
 3. **Check Logs**: Monitor Nextcloud logs for errors
 4. **Backup**: Always backup before upgrading
 5. **Review**: Use `git diff` to review all changes
+6. **Branch Strategy**: Use separate branches for each major version upgrade
 
 ## References
 
@@ -452,3 +648,4 @@ Solution:
 - [Nextcloud Server Changelog](https://github.com/nextcloud/server/blob/master/CHANGELOG.md)
 - [Nextcloud App API](https://docs.nextcloud.com/server/latest/developer_manual/app/devenv.html)
 - [Composer Documentation](https://getcomposer.org/doc/)
+- [Git Branch Documentation](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell)
