@@ -16,12 +16,10 @@ class SocialConnectDAO extends QBMapper
   }
 
   /**
-   * Suchen einer Verbindung in der Datenbank
-   * 
    * @param string $identifier hiorg oauth identifier
-   * @return string|null User uid
+   * @return ConnectedLogin|null
    */
-  public function findUID($identifier): string | null
+  public function find(string $identifier)
   {
     $qb = $this->db->getQueryBuilder();
 
@@ -38,6 +36,16 @@ class SocialConnectDAO extends QBMapper
     } catch (Db\MultipleObjectsReturnedException $e) {
       return null;
     }
+  }
+
+  /**
+   * @param string $identifier hiorg oauth identifier
+   * @return string|null Nextcloud user id that corresponds to the social login identifier
+   */
+  public function findUID($identifier)
+  {
+    $login = $this->find($identifier);
+    return $login == null ? null : $login->uid;
   }
 
   /**
@@ -66,14 +74,7 @@ class SocialConnectDAO extends QBMapper
       ->where(
         $qb->expr()->eq('identifier', $qb->createNamedParameter($identifier))
       );
-    if (method_exists($qb, 'executeStatement')) {
-      $qb->executeStatement();
-    } else {
-      /**
-       * @disregard P1007 Deprectated
-       */
-      $qb->execute();
-    }
+    $qb->executeStatement();
   }
 
   /**
@@ -89,14 +90,7 @@ class SocialConnectDAO extends QBMapper
       ->where(
         $qb->expr()->eq('uid', $qb->createNamedParameter($uid))
       );
-    if (method_exists($qb, 'executeStatement')) {
-      $qb->executeStatement();
-    } else {
-      /**
-       * @disregard P1007 Deprectated
-       */
-      $qb->execute();
-    }
+    $qb->executeStatement();
   }
 
   // TODO: Wird das überhaupt benötigt? - Wird im SocialLogin nur aus der PersonalSettings aufgerufen
